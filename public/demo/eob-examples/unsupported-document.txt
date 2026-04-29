@@ -1,0 +1,10 @@
+Visit Summary
+Community Family Clinic
+
+Patient: Jane Q. Smith
+Date: June 14, 2026
+
+This document is a short clinical visit summary. It does not include insurance service lines, billed amounts, payment amounts, patient responsibility, claim adjustment reason codes, or appeal instructions.
+
+Assessment:
+The patient was seen for a cough and fever. Follow up with primary care if symptoms worsen.

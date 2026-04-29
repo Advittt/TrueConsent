@@ -1,0 +1,37 @@
+[
+  {
+    "id": "bluecross-clean",
+    "label": "BlueCross clean EOB",
+    "path": "/demo/eob-examples/bluecross-clean.txt",
+    "summary": "Baseline insurer layout with standard service-line columns.",
+    "expectedMethod": "regex"
+  },
+  {
+    "id": "aetna-alternate-columns",
+    "label": "Aetna alternate columns",
+    "path": "/demo/eob-examples/aetna-alternate-columns.txt",
+    "summary": "Different labels, reason-code-first rows, same normalized claim.",
+    "expectedMethod": "regex"
+  },
+  {
+    "id": "unitedhealthcare-remark-format",
+    "label": "UnitedHealthcare remark format",
+    "path": "/demo/eob-examples/unitedhealthcare-remark-format.txt",
+    "summary": "Uses billed charges, paid by plan, you may owe, and remark columns.",
+    "expectedMethod": "regex"
+  },
+  {
+    "id": "multi-page-ocr",
+    "label": "Multi-page OCR-style EOB",
+    "path": "/demo/eob-examples/multi-page-ocr.txt",
+    "summary": "Member details, service lines, denial glossary, and appeal rights are split across pages.",
+    "expectedMethod": "regex"
+  },
+  {
+    "id": "unsupported-document",
+    "label": "Unsupported document",
+    "path": "/demo/eob-examples/unsupported-document.txt",
+    "summary": "Shows safe failure when a file is not an EOB.",
+    "expectedMethod": "failed"
+  }
+]

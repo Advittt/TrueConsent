@@ -1,0 +1,31 @@
+EXPLANATION OF BENEFITS
+BlueCross BlueShield of Illinois
+Member Services: 1-800-835-8699
+PO Box 805107, Chicago, IL 60680
+
+MEMBER INFORMATION
+Member Name:      Jane Q. Smith
+Member ID:        BCB-2204819334
+Group Number:     GRP-00471920
+Plan Name:        PPO Gold 1500
+Claim Number:     48291
+Date of Service:  June 14, 2026
+Provider:         Memorial Hospital Emergency Department
+Admitting Diagnosis: J18.9 - Pneumonia, unspecified organism
+
+SERVICE LINES
+Line  Date        Procedure  Description                     Billed    Allowed   Paid      Patient   Denial
+1     06/14/2026  99285      ER visit, high complexity MDM   $1847.00  $0.00     $0.00     $0.00     CO-50, RARC N130
+2     06/14/2026  71046      Chest X-ray 2 views             $612.00   $565.00   $489.00   $76.00    PR-1
+3     06/14/2026  36415      Routine venipuncture            $45.00    $45.00    $36.00    $9.00     PR-1
+4     06/14/2026  J0696      Ceftriaxone injection 250mg     $280.00   $0.00     $0.00     $0.00     CO-4
+
+CLAIM TOTALS
+Total Billed: $2784.00
+Total Insurance Paid: $525.00
+Total Patient Responsibility: $85.00
+
+DENIAL CODE GLOSSARY
+CO-50: Non-covered services - not deemed medically necessary by payer
+CO-4: Procedure code inconsistent with modifier used or required modifier missing
+PR-1: Deductible amount - patient responsibility

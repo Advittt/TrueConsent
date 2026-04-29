@@ -1,0 +1,25 @@
+EXPLANATION OF BENEFITS
+Aetna Choice POS II
+Member Name: Jane Q. Smith
+Member ID: AET-2204819334
+Claim Number: 48291
+Date of Service: 06/14/2026
+Provider: Memorial Hospital Emergency Department
+Admitting Diagnosis: J18.9
+
+Service Detail
+Reason Code  Date        Code   Service Description              Charge Amount  Allowed   Plan Pays  Member Liability
+PR-1         06/14/2026  36415  Routine venipuncture             $45.00         $45.00    $36.00     $9.00
+CO-4         06/14/2026  J0696  Ceftriaxone injection 250mg      $280.00        $0.00     $0.00      $0.00
+CO-50        06/14/2026  99285  ER visit, high complexity MDM    $1847.00       $0.00     $0.00      $0.00
+PR-1         06/14/2026  71046  Chest X-ray 2 views              $612.00        $565.00   $489.00    $76.00
+
+Totals
+Charge Amount $2784.00
+Plan Pays $525.00
+Member Liability $85.00
+
+Reason Code Descriptions
+CO-50 Non-covered services not deemed medically necessary by payer
+CO-4 Procedure code inconsistent with modifier used or required modifier missing
+PR-1 Deductible amount patient responsibility
