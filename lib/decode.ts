@@ -100,6 +100,36 @@ function dollarsToCents(s: string): number {
   return Math.round(parseFloat(s.replace(/,/g, "")) * 100);
 }
 
+function cleanInlineField(value: string | undefined): string | undefined {
+  return value
+    ?.replace(/\s+(Member ID|Group Number|Plan Name|Claim (?:Number|#|No)\.?)\b.*$/i, "")
+    .trim();
+}
+
+function failedClaim(baseClaim: DecodedClaim): DecodedClaim {
+  return {
+    ...baseClaim,
+    kind: "unknown",
+    extractionMethod: "failed",
+    lines: [],
+    denials: [],
+    totals: {
+      billed: 0,
+      insurancePaid: 0,
+      patientResponsibility: 0,
+      potentialSavings: 0,
+    },
+  };
+}
+
+function hasClaimExtractionSignals(text: string): boolean {
+  const moneyCount = text.match(/\$\s*(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{2})?/g)?.length ?? 0;
+  const hasKnownClaimCode =
+    /\b(?:CPT|HCPCS)\s+[A-Z]?\d{4,5}\b/i.test(text) ||
+    /\b(CO-\d+|PR-\d+|OA-\d+|PI-\d+)\b/i.test(text);
+  return moneyCount >= 2 && hasKnownClaimCode;
+}
+
 // ── Line parser ───────────────────────────────────────────────────────────────
 // Parses service lines from EOB table rows.
 // Expected row format (tab or whitespace delimited):
@@ -188,7 +218,7 @@ export async function decodeClaim(text: string): Promise<DecodedClaim> {
   const claimIdMatch = text.match(/Claim\s+(?:Number|#|No)[.:\s]+([A-Z0-9-]+)/i);
   const memberNameMatch = text.match(/Member\s+Name[:\s]+([^\n\r]+)/i);
   const insurerNameMatch = text.match(/^(BlueCross[^\n\r]*|Aetna[^\n\r]*|UnitedHealth[^\n\r]*|Cigna[^\n\r]*|Humana[^\n\r]*)/im);
-  const providerMatch = text.match(/Provider[:\s]+([^\n\r]+)/i);
+  const providerMatch = text.match(/^Provider(?:\s*:|\s+)(?!&\s*SERVICE\b)([^\n\r]+)/im);
   const serviceDateMatch = text.match(/Date\s+of\s+Service[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|\d{2}\/\d{2}\/\d{4})/i);
   const diagnosisMatch = text.match(/Admitting\s+Diagnosis[:\s]+([A-Z]\d{2}\.?\d*)/i);
 
@@ -230,7 +260,7 @@ export async function decodeClaim(text: string): Promise<DecodedClaim> {
     kind: "eob",
     claimId: claimIdMatch?.[1]?.trim(),
     memberId: memberIdMatch?.[1]?.trim(),
-    patientName: memberNameMatch?.[1]?.trim(),
+    patientName: cleanInlineField(memberNameMatch?.[1]),
     insurerName: insurerNameMatch?.[1]?.trim(),
     providerName: providerMatch?.[1]?.trim(),
     serviceDate,
@@ -244,21 +274,19 @@ export async function decodeClaim(text: string): Promise<DecodedClaim> {
     return { ...baseClaim, extractionMethod: "regex" };
   }
 
-  const llmResult = await extractClaimWithLLM(text);
+  if (!hasClaimExtractionSignals(text)) {
+    return failedClaim(baseClaim);
+  }
+
+  let llmResult: Awaited<ReturnType<typeof extractClaimWithLLM>>;
+  try {
+    llmResult = await extractClaimWithLLM(text);
+  } catch {
+    return failedClaim(baseClaim);
+  }
+
   if (llmResult.confidence === "low") {
-    return {
-      ...baseClaim,
-      kind: "unknown",
-      extractionMethod: "failed",
-      lines: [],
-      denials: [],
-      totals: {
-        billed: 0,
-        insurancePaid: 0,
-        patientResponsibility: 0,
-        potentialSavings: 0,
-      },
-    };
+    return failedClaim(baseClaim);
   }
 
   return {

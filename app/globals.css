@@ -1764,6 +1764,162 @@ button.browse-link {
 }
 .topnav a:hover { background: rgba(0, 0, 0, 0.05); color: var(--fg, #111); }
 
+/* ---------- Pipeline steps ---------- */
+.pipeline-step {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-top: 12px;
+  background: white;
+}
+.pipeline-step-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.pipeline-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.pipeline-step-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+.pipeline-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+}
+.pipeline-badge--ok  { background: #dcfce7; color: #14532d; }
+.pipeline-badge--bad { background: #fee2e2; color: #991b1b; }
+.pipeline-badge--llm { background: #dbeafe; color: #1d4ed8; }
+.pipeline-step-body {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: 14px;
+}
+
+/* Code lookup table */
+.lookup-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.lookup-table th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.lookup-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: top;
+  line-height: 1.45;
+}
+.lookup-table tr:last-child td { border-bottom: none; }
+.lookup-table code {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  background: #f1f5f9;
+  padding: 1px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.lookup-table-col { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.lookup-row--bad td { background: #fff7f7; }
+.lookup-status { font-weight: 700; font-size: 11px; white-space: nowrap; }
+.lookup-status--ok  { color: #16a34a; }
+.lookup-status--bad { color: #dc2626; }
+.lookup-appeal-notes {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+  font-style: italic;
+}
+.lookup-rate {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lookup-rate-bar {
+  height: 5px;
+  background: #22c55e;
+  border-radius: 99px;
+  min-width: 4px;
+}
+.lookup-rate span { font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+/* Reconciliation table */
+.reconcile-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.reconcile-table th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.reconcile-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  font-variant-numeric: tabular-nums;
+}
+.reconcile-table tr:last-child td { border-bottom: none; }
+.recon-ok  { color: #16a34a; font-weight: 700; text-align: center; }
+.recon-bad { color: #dc2626; font-weight: 700; text-align: center; }
+
+/* Denial scoring */
+.denial-score-list { display: flex; flex-direction: column; gap: 8px; }
+.denial-score-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #f8fafc;
+  flex-wrap: wrap;
+}
+.denial-score-row--appealable { background: #f0fdf4; border-color: #bbf7d0; }
+.denial-score-left { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+.denial-score-code { font-family: ui-monospace, monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+.denial-score-reason { font-size: 13px; color: var(--muted); line-height: 1.4; }
+.denial-score-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+.denial-rate-bar-wrap { width: 80px; height: 6px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+.denial-rate-bar { height: 100%; background: #22c55e; border-radius: 99px; }
+.denial-rate-label { font-size: 11px; color: var(--muted); }
+.denial-score-badge {
+  font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px;
+  background: #dcfce7; color: #14532d;
+}
+.denial-score-badge--skip { background: #f1f5f9; color: var(--muted); }
+
 /* ---------- Demo switcher ---------- */
 .demo-switcher {
   display: flex;

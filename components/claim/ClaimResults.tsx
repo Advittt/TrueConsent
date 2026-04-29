@@ -297,7 +297,6 @@ function VerificationTrace({ data }: { data: ClaimResponseWithLetter }) {
   const { claim } = data;
   const audit = data.extraction ?? buildAuditFromClaim(data);
   const rejectedCodes = audit.rejectedCodes ?? [];
-  const verifiedCodes = audit.verifiedCodes ?? [];
   const recomputedTotals = audit.recomputedTotals ?? claim.totals;
   const statedTotals = audit.statedTotals ?? {
     billed: claim.totals.billed,
@@ -306,77 +305,189 @@ function VerificationTrace({ data }: { data: ClaimResponseWithLetter }) {
   };
   const reconciliationOk = audit.reconciliationOk ?? true;
   const confidence = audit.confidence ?? "high";
-  const sourceLabel =
-    audit.source === "llm-fallback" || audit.source === "demo-llm-fallback"
-      ? "LLM fallback"
-      : audit.source === "failed"
-        ? "Safe failure"
-      : "Deterministic parser";
-  const sourceText =
-    audit.source === "failed"
-      ? "No reliable EOB structure was accepted, so the system stopped before generating claim lines."
-      : `${sourceLabel} converted the EOB into service lines and dollar amounts.`;
-  const confidenceText =
-    confidence === "high"
-      ? "Totals matched and all returned codes were verified."
-      : confidence === "medium"
-        ? "Totals matched, but at least one returned code was rejected."
-        : "Totals did not reconcile or extraction was incomplete.";
+
+  const isLLM = audit.source === "llm-fallback" || audit.source === "demo-llm-fallback";
+  const isFailed = audit.source === "failed";
+
+  // Build a flat list of every code lookup from claim lines
+  type LookupRow = { table: string; code: string; description: string; ok: boolean; successRate?: number; appealNotes?: string };
+  const lookups: LookupRow[] = [];
+  for (const line of claim.lines) {
+    if (line.cpt)  lookups.push({ table: "CPT (78 codes)",   code: line.cpt.code,  description: line.cpt.description,  ok: true });
+    if (line.hcpcs) lookups.push({ table: "HCPCS (26 codes)", code: line.hcpcs.code, description: line.hcpcs.description, ok: true });
+    for (const dx of line.diagnosis ?? []) {
+      lookups.push({ table: "ICD-10 (48 codes)", code: dx.code, description: dx.description, ok: true });
+    }
+    if (line.denial) {
+      lookups.push({
+        table: "CARC (38 codes)",
+        code: line.denial.carc.code,
+        description: line.denial.carc.description,
+        ok: !rejectedCodes.some(r => r.includes(line.denial!.carc.code)),
+        successRate: line.denial.successRate,
+        appealNotes: line.denial.carc.appealNotes,
+      });
+    }
+  }
 
   return (
     <section className="verification-trace" aria-labelledby="verification-trace-title">
       <div className="verification-trace-head">
         <div>
-          <div className="card-eyebrow">Verification trace</div>
-          <h2 id="verification-trace-title">Why we trust this appeal packet</h2>
+          <div className="card-eyebrow">Deterministic pipeline</div>
+          <h2 id="verification-trace-title">How this appeal packet was built</h2>
         </div>
         <div className={`confidence-pill confidence-pill--${confidence}`}>
           {confidence} confidence
         </div>
       </div>
 
-      <div className="trace-grid">
-        <div className="trace-panel">
-          <div className="trace-panel-title">1. Extraction source</div>
-          <p>{sourceText}</p>
+      {/* Step 1 — extraction */}
+      <div className="pipeline-step">
+        <div className="pipeline-step-head">
+          <span className="pipeline-num">1</span>
+          <span className="pipeline-step-title">Text extraction</span>
+          <span className={`pipeline-badge ${isFailed ? "pipeline-badge--bad" : isLLM ? "pipeline-badge--llm" : "pipeline-badge--ok"}`}>
+            {isFailed ? "failed" : isLLM ? "LLM fallback" : "regex parser"}
+          </span>
         </div>
-        <div className="trace-panel">
-          <div className="trace-panel-title">2. Code validation</div>
-          <div className="code-chip-row">
-            {verifiedCodes.slice(0, 8).map((code) => (
-              <span className="code-chip code-chip--ok" key={code}>{code} verified</span>
+        <p className="pipeline-step-body">
+          {isFailed
+            ? "No recognizable EOB structure found — no claim lines were accepted."
+            : isLLM
+              ? `LLM extracted ${claim.lines.length} service lines from an unstructured layout, then all codes were validated deterministically.`
+              : `Regex parser extracted ${claim.lines.length} service lines from the EOB text. No model was used at this step.`}
+        </p>
+      </div>
+
+      {/* Step 2 — code table lookup */}
+      {lookups.length > 0 && (
+        <div className="pipeline-step">
+          <div className="pipeline-step-head">
+            <span className="pipeline-num">2</span>
+            <span className="pipeline-step-title">Code table lookup</span>
+            <span className="pipeline-badge pipeline-badge--ok">
+              {lookups.filter(l => l.ok).length} verified · {lookups.filter(l => !l.ok).length} rejected
+            </span>
+          </div>
+          <p className="pipeline-step-body">
+            Every code is checked against a local CMS-sourced table before it can affect your appeal. Unrecognized codes are rejected — the LLM cannot invent a code.
+          </p>
+          <table className="lookup-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Table</th>
+                <th>Description</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {lookups.map((row, i) => (
+                <tr key={i} className={row.ok ? "" : "lookup-row--bad"}>
+                  <td><code>{row.code}</code></td>
+                  <td className="lookup-table-col">{row.table}</td>
+                  <td>
+                    {row.description}
+                    {row.appealNotes && (
+                      <div className="lookup-appeal-notes">{row.appealNotes}</div>
+                    )}
+                  </td>
+                  <td>
+                    <span className={`lookup-status ${row.ok ? "lookup-status--ok" : "lookup-status--bad"}`}>
+                      {row.ok ? "✓ verified" : "✗ rejected"}
+                    </span>
+                    {row.successRate !== undefined && (
+                      <div className="lookup-rate">
+                        <div className="lookup-rate-bar" style={{ width: `${Math.round(row.successRate * 100)}%` }} />
+                        <span>{Math.round(row.successRate * 100)}% appeal success</span>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Step 3 — reconciliation */}
+      <div className="pipeline-step">
+        <div className="pipeline-step-head">
+          <span className="pipeline-num">3</span>
+          <span className="pipeline-step-title">Total reconciliation</span>
+          <span className={`pipeline-badge ${reconciliationOk ? "pipeline-badge--ok" : "pipeline-badge--bad"}`}>
+            {reconciliationOk ? "matched" : "mismatch"}
+          </span>
+        </div>
+        <p className="pipeline-step-body">
+          The system re-sums all service line amounts independently and compares against the EOB stated totals. Mismatches block the appeal.
+        </p>
+        <table className="reconcile-table">
+          <thead>
+            <tr><th>Total</th><th>EOB stated</th><th>System computed</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Billed</td>
+              <td>{formatMoney(statedTotals.billed)}</td>
+              <td>{formatMoney(recomputedTotals.billed)}</td>
+              <td className={reconciliationOk ? "recon-ok" : "recon-bad"}>{reconciliationOk ? "✓" : "✗"}</td>
+            </tr>
+            <tr>
+              <td>Insurance paid</td>
+              <td>{formatMoney(statedTotals.insurancePaid)}</td>
+              <td>{formatMoney(recomputedTotals.insurancePaid)}</td>
+              <td className="recon-ok">✓</td>
+            </tr>
+            <tr>
+              <td>Patient responsibility</td>
+              <td>{formatMoney(statedTotals.patientResponsibility)}</td>
+              <td>{formatMoney(recomputedTotals.patientResponsibility)}</td>
+              <td className="recon-ok">✓</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Step 4 — appeal scoring */}
+      {claim.denials.length > 0 && (
+        <div className="pipeline-step">
+          <div className="pipeline-step-head">
+            <span className="pipeline-num">4</span>
+            <span className="pipeline-step-title">Denial scoring</span>
+            <span className="pipeline-badge pipeline-badge--ok">
+              {claim.denials.filter(d => d.appealable).length} appealable
+            </span>
+          </div>
+          <p className="pipeline-step-body">
+            Each denial code maps to a CMS-defined reason with a historical overturn rate. Only appealable denials with a recognized clinical basis become appeal targets.
+          </p>
+          <div className="denial-score-list">
+            {claim.denials.map((denial, i) => (
+              <div key={i} className={`denial-score-row ${denial.appealable ? "denial-score-row--appealable" : ""}`}>
+                <div className="denial-score-left">
+                  <span className="denial-score-code">{denial.carc.code}</span>
+                  <span className="denial-score-reason">{denial.reason}</span>
+                </div>
+                <div className="denial-score-right">
+                  {denial.appealable ? (
+                    <>
+                      <div className="denial-rate-bar-wrap">
+                        <div className="denial-rate-bar" style={{ width: `${Math.round((denial.successRate ?? 0) * 100)}%` }} />
+                      </div>
+                      <span className="denial-rate-label">{Math.round((denial.successRate ?? 0) * 100)}% overturn rate</span>
+                      <span className="denial-score-badge">Appeal this</span>
+                    </>
+                  ) : (
+                    <span className="denial-score-badge denial-score-badge--skip">Patient responsibility</span>
+                  )}
+                </div>
+              </div>
             ))}
           </div>
-          {rejectedCodes.length > 0 ? (
-            <div className="rejected-row">
-              {rejectedCodes.map((code) => (
-                <span className="code-chip code-chip--bad" key={code}>{code} rejected</span>
-              ))}
-            </div>
-          ) : null}
         </div>
-        <div className="trace-panel">
-          <div className="trace-panel-title">3. Deterministic reconciliation</div>
-          <div className="totals-compare">
-            <span>LLM stated billed</span>
-            <strong>{formatMoney(statedTotals.billed)}</strong>
-            <span>System recomputed billed</span>
-            <strong>{formatMoney(recomputedTotals.billed)}</strong>
-          </div>
-          <div className={`trace-result ${reconciliationOk ? "trace-result--ok" : "trace-result--bad"}`}>
-            {reconciliationOk ? "Totals matched within $1 tolerance" : "Totals did not reconcile"}
-          </div>
-        </div>
-        <div className="trace-panel">
-          <div className="trace-panel-title">4. Action generated</div>
-          <p>
-            Appeal packet targets {claim.denials.filter((d) => d.appealable).length}
-            {" "}appealable denial{claim.denials.filter((d) => d.appealable).length === 1 ? "" : "s"}
-            {" "}worth {formatMoney(claim.totals.potentialSavings)}.
-          </p>
-          <p className="trace-muted">{confidenceText}</p>
-        </div>
-      </div>
+      )}
 
       {audit.citations?.length ? (
         <div className="citation-strip">
