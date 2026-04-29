@@ -121,12 +121,15 @@ Errors come back as `{ "error": "..." }` with a 4xx/5xx status.
 
 ### Sample forms
 
-`consent-form-mocks/` contains three sample PDFs you can drop in to demo the
+`consent-form-mocks/` contains six sample PDFs you can drop in to demo the
 flow without a real form:
 
 - `general-medical-consent-form.pdf`
 - `orthodontics-consent-form.pdf`
-- `surgery-consent-form.pdf`
+- `surgery-consent-form.pdf` (includes an anesthesia sub-consent block)
+- `dental-implant-consent-form.pdf`
+- `imaging-consent-form.pdf` (includes a radiation-dose disclosure table and contrast risks)
+- `telehealth-consent-form.pdf` (includes connection-failure procedure and cross-state licensing)
 
 ### Project layout
 
