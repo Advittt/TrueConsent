@@ -1,6 +1,6 @@
 "use client";
 
-import { formatFileSize } from "@/lib/format";
+import { formatFileSize } from "@/lib/format-money";
 
 interface UploadingCardProps {
   fileName: string;

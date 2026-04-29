@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { decodeClaim } from "@/lib/decode";
 import { generateAppealLetter } from "@/lib/appeal-letter";
-import { extractClaimWithLLM } from "@/lib/extract-with-llm";
-import { extractPdfText } from "@/lib/checks/extractText";
+import { extractPdfText } from "@/lib/extract-pdf-text";
 import type { AnalyzeClaimResponse, DecodedClaim } from "@/lib/types/claim";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 type ExtractionAudit = {
-  source: "regex" | "llm-fallback";
+  source: "regex" | "llm-fallback" | "failed";
   confidence: "high" | "medium" | "low";
   rejectedCodes: string[];
   reconciliationOk: boolean;
@@ -52,42 +51,24 @@ export async function POST(req: NextRequest) {
   let extraction: ExtractionAudit;
   try {
     claim = await decodeClaim(text);
-    if (claim.lines.length === 0) {
-      const fallback = await extractClaimWithLLM(text);
-      claim = {
-        ...claim,
-        lines: fallback.lines,
-        totals: fallback.totals,
-        denials: fallback.denials,
-      };
-      extraction = {
-        source: "llm-fallback",
-        confidence: fallback.confidence,
-        rejectedCodes: fallback.rejectedCodes,
-        reconciliationOk: fallback.reconciliationOk,
-        verifiedCodes: verifiedCodesFor(claim),
-        statedTotals: {
-          billed: fallback.totals.billed,
-          insurancePaid: fallback.totals.insurancePaid,
-          patientResponsibility: fallback.totals.patientResponsibility,
-        },
-        recomputedTotals: fallback.totals,
-      };
-    } else {
-      extraction = {
-        source: "regex",
-        confidence: "high",
-        rejectedCodes: [],
-        reconciliationOk: true,
-        verifiedCodes: verifiedCodesFor(claim),
-        statedTotals: {
-          billed: claim.totals.billed,
-          insurancePaid: claim.totals.insurancePaid,
-          patientResponsibility: claim.totals.patientResponsibility,
-        },
-        recomputedTotals: claim.totals,
-      };
-    }
+    extraction = {
+      source:
+        claim.extractionMethod === "llm"
+          ? "llm-fallback"
+          : claim.extractionMethod === "failed"
+            ? "failed"
+            : "regex",
+      confidence: claim.extractionMethod === "failed" ? "low" : "high",
+      rejectedCodes: [],
+      reconciliationOk: claim.extractionMethod !== "failed",
+      verifiedCodes: verifiedCodesFor(claim),
+      statedTotals: {
+        billed: claim.totals.billed,
+        insurancePaid: claim.totals.insurancePaid,
+        patientResponsibility: claim.totals.patientResponsibility,
+      },
+      recomputedTotals: claim.totals,
+    };
   } catch (err) {
     return errorResponse(err instanceof Error ? err.message : "Failed to decode claim.", 500);
   }
@@ -115,8 +96,6 @@ export async function POST(req: NextRequest) {
     authorizationFormSigned: false,
   };
 
-  // appealLetter is an extension beyond the base AnalyzeClaimResponse type
-  // (which has no appealLetter field) — included for frontend consumption.
   return NextResponse.json(
     { claim, escalation, patientFacingSummary, appealLetter, extraction } satisfies AnalyzeClaimResponse & { appealLetter: string; extraction: ExtractionAudit },
     { headers: { "Cache-Control": "no-store" } }
