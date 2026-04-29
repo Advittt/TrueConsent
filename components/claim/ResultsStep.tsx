@@ -26,7 +26,7 @@ const STRENGTH_LABEL: Record<DenialStrength, string> = {
 };
 
 export function ResultsStep({ claim, onAppeal }: Props) {
-  const [expanded, setExpanded] = useState<string | null>(claim.denials[0]?.id ?? null);
+  const [expanded, setExpanded] = useState<string | null>(claim.denials?.[0]?.id ?? null);
   const [visible, setVisible]   = useState(false);
   useEffect(() => { setTimeout(() => setVisible(true), 80); }, []);
 

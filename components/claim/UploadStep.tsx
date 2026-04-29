@@ -29,12 +29,13 @@ export function UploadStep({ onUpload }: Props) {
       <div style={S.hero}>
         <div style={S.badge}>AI-Powered EOB Decoder</div>
         <h1 style={S.headline}>
-          Your insurer said no.<br />
-          <span style={S.accent}>We say: not so fast.</span>
+          1 in 5 claims gets denied.<br />
+          <span style={S.accent}>7 in 10 win on appeal.</span>
         </h1>
         <p style={S.sub}>
-          Upload your Explanation of Benefits. We decode every denial code, expose their mistakes,
-          and write a lawyer-grade appeal letter — in under 60 seconds.
+          Less than 1% of people ever challenge a denial — even though most win when they do.
+          That&apos;s <strong style={{ color:'oklch(0.45 0.18 22)' }}>$265 billion</strong> sitting on the table.
+          We built TrueConsent to pick it up.
         </p>
 
         <div
@@ -90,10 +91,10 @@ export function UploadStep({ onUpload }: Props) {
 
       <div style={S.statsRow}>
         {[
-          { n: '$4.2B', l: 'recovered for patients' },
-          { n: '94%',   l: 'appeal success rate' },
-          { n: '58 sec',l: 'average decode time' },
-          { n: '12,000+',l: 'denial codes decoded' },
+          { n: '1 in 5',  l: 'claims denied by insurers' },
+          { n: '70%',     l: '"not medically necessary" denials overturned on appeal' },
+          { n: '$265B',   l: 'fought by hospitals & patients every year' },
+          { n: '<1%',     l: 'of people ever appeal — most win when they do' },
         ].map(({ n, l }) => (
           <div key={n} style={S.statCard}>
             <div style={S.statNum}>{n}</div>

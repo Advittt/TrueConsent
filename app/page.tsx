@@ -1,450 +1,339 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { AnalyzeClaimResponse } from "@/lib/types/claim";
-import { ClaimResults } from "@/components/claim/ClaimResults";
+import { useState } from 'react';
+import type { AppStep, ClaimResult, AppealLetter, AnalyzeClaimResponse } from '@/lib/types/claim';
 
-// Backend may include appealLetter as an extra key beyond the typed shape.
-type ClaimResponseWithLetter = AnalyzeClaimResponse & { appealLetter?: string };
-
-type Phase = "idle" | "uploading" | "scanning" | "results";
-type DemoExample = {
-  id: string;
-  label: string;
-  path: string;
-  summary: string;
-  expectedMethod: "regex" | "llm" | "failed";
+// ── Demo data injected for the sample flow ───────────────────────────────────
+const SAMPLE_CLAIM: ClaimResult = {
+  patient:       'Sarah Mitchell',
+  memberId:      'BCBS-2024-9842',
+  insurer:       'Blue Cross Blue Shield',
+  claimNumber:   'CLM-2024-77291',
+  dateOfService: 'Sep 12, 2024',
+  provider:      'Valley Surgical Center',
+  totalBilled:   12847_00,
+  totalAllowed:   9003_00,
+  totalPaid:      9000_00,
+  totalDenied:    3847_00,
+  denials: [
+    {
+      id:          'd1',
+      cpt:         '47562',
+      description: 'Laparoscopic cholecystectomy',
+      icd10:       'K80.20',
+      icd10Label:  'Calculus of gallbladder without cholecystitis',
+      billed:      8200_00,
+      paid:        5800_00,
+      denied:      2400_00,
+      carc:        'CO-97',
+      carcLabel:   'Bundled/included in payment for another service',
+      ourAnalysis: 'BCBS applied CO-97 claiming the cholecystectomy is bundled with the pre-op visit (CPT 99213). This is incorrect — NCCI edits explicitly allow separate billing when the pre-op evaluation occurs more than 24 hours before surgery. Date gap confirmed: 3 days.',
+      policyRef:   'NCCI Policy Manual Ch. 1, §D.6',
+      confidence:  87,
+      strength:    'strong',
+    },
+    {
+      id:          'd2',
+      cpt:         'Z01.810',
+      description: 'Pre-operative EKG examination',
+      icd10:       'Z01.810',
+      icd10Label:  'Encounter for preprocedural cardiovascular exam',
+      billed:      1447_00,
+      paid:        0,
+      denied:      1447_00,
+      carc:        'CO-4',
+      carcLabel:   'Service/procedure inconsistent with patient\'s age/sex/diagnosis',
+      ourAnalysis: 'Insurer flagged EKG as inconsistent with a 34-year-old patient. AHA guidelines explicitly recommend pre-op EKG for patients with history of cardiac symptoms regardless of age. Medical record shows palpitation notation from 2023.',
+      policyRef:   'AHA 2022 Perioperative Guidelines §3.1',
+      confidence:  74,
+      strength:    'moderate',
+    },
+    {
+      id:          'd3',
+      cpt:         '99213',
+      description: 'Office/outpatient visit, established patient',
+      icd10:       'K80.20',
+      icd10Label:  'Calculus of gallbladder without cholecystitis',
+      billed:      500_00,
+      paid:        500_00,
+      denied:      0,
+      carc:        null,
+      carcLabel:   null,
+      ourAnalysis: null,
+      policyRef:   null,
+      confidence:  null,
+      strength:    'paid',
+    },
+  ],
 };
 
-const ACCEPTED_MIME = ["application/pdf", "text/plain"];
-const ACCEPTED_INPUT = ".pdf,.txt,application/pdf,text/plain";
-const MAX_BYTES = 25 * 1024 * 1024;
+const SAMPLE_APPEAL: AppealLetter = {
+  claimId:   'CLM-2024-77291',
+  winRate:   82,
+  grounds:   2,
+  citations: ['NCCI Policy Manual Ch. 1 §D.6', 'AHA 2022 Perioperative Guidelines §3.1', '45 CFR §147.136', 'CMS-1500 Claim Form Instructions Rev. 2023'],
+  content: `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FORMAL APPEAL — INSURANCE CLAIM DENIAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const SCAN_LABELS = [
-  "Reading your EOB…",
-  "Decoding CPT and CARC codes…",
-  "Identifying appealable denials…",
-  "Calculating potential savings…",
-];
+Date:    ${new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })}
+RE:      Claim #CLM-2024-77291 — Denial Appeal
+Member:  Sarah Mitchell · BCBS-2024-9842
 
-export default function ClaimPage() {
-  const [phase, setPhase] = useState<Phase>("idle");
-  const [progress, setProgress] = useState(0);
-  const [result, setResult] = useState<ClaimResponseWithLetter | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [scanIdx, setScanIdx] = useState(0);
-  const [dragActive, setDragActive] = useState(false);
-  const [demoExamples, setDemoExamples] = useState<DemoExample[]>([]);
-  const [demoLoadingId, setDemoLoadingId] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+Dear Blue Cross Blue Shield Appeals Department,
 
-  // Scan label rotation
-  useEffect(() => {
-    if (phase !== "scanning") return;
-    const id = window.setInterval(
-      () => setScanIdx((i) => (i + 1) % SCAN_LABELS.length),
-      1200
-    );
-    return () => window.clearInterval(id);
-  }, [phase]);
+I am writing to formally appeal the denial of claim #CLM-2024-77291
+for services rendered on September 12, 2024 at Valley Surgical Center.
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/demo/eob-examples/index.json")
-      .then((res) => (res.ok ? res.json() : []))
-      .then((examples: DemoExample[]) => {
-        if (!cancelled) setDemoExamples(examples);
-      })
-      .catch(() => {
-        if (!cancelled) setDemoExamples([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GROUND 1: CO-97 BUNDLING DENIAL IS INCORRECT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  // Demo mode: ?demo=eob or ?demo=surgery
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const demo = params.get("demo");
-    const DEMO_FILES: Record<string, string> = {
-      eob: "/demo/eob.json",
-      surgery: "/demo/surgery.json",
-    };
-    const path = demo ? DEMO_FILES[demo] : null;
-    if (!path) return;
+BCBS applied adjustment code CO-97, claiming CPT 47562
+(laparoscopic cholecystectomy, $2,400.00) is bundled with the
+pre-operative visit (CPT 99213, billed separately on Sep 9).
 
-    let cancelled = false;
-    setError(null);
+This is incorrect. Per NCCI Policy Manual Chapter 1, Section D.6,
+separate billing is explicitly permitted when the pre-operative
+evaluation occurs more than 24 hours before the surgical procedure.
+The pre-op visit was conducted 3 days prior (Sep 9 vs Sep 12).
 
-    async function loadDemo() {
-      try {
-        const res = await fetch(path!);
-        if (res.ok) {
-          const body = (await res.json()) as AnalyzeClaimResponse;
-          if (!cancelled) {
-            setResult(body);
-            setPhase("results");
-          }
-          return;
-        }
-      } catch {
-        // fall through to error
-      }
-      if (!cancelled) {
-        setError("Could not load demo data.");
-      }
-    }
+Request: Reprocess CPT 47562 at allowed rate. Expected: $2,400.00.
 
-    loadDemo();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GROUND 2: CO-4 DENIAL OF PRE-OP EKG IS INCORRECT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  const CACHED_DEMOS: { key: string; label: string; path: string }[] = [
-    { key: "eob",          label: "ER visit (BlueCross)",      path: "/demo/eob.json" },
-    { key: "surgery",      label: "Surgery",                   path: "/demo/surgery.json" },
-    { key: "aetna",        label: "Aetna format",              path: "/demo/aetna-alternate-columns.json" },
-    { key: "uhc",          label: "UnitedHealthcare format",   path: "/demo/unitedhealthcare-remark-format.json" },
-    { key: "multipage",    label: "Multi-page OCR",            path: "/demo/multi-page-ocr.json" },
-    { key: "unsupported",  label: "Unsupported doc",           path: "/demo/unsupported-document.json" },
-  ];
+BCBS denied CPT Z01.810 (pre-operative EKG, $1,447.00) citing CO-4,
+claiming the service is inconsistent with the patient's age/diagnosis.
 
-  const [activeDemoKey, setActiveDemoKey] = useState<string | null>(null);
+AHA 2022 Perioperative Cardiovascular Evaluation Guidelines (§3.1)
+explicitly recommend pre-operative EKG for patients with a documented
+history of cardiac symptoms, regardless of age. Ms. Mitchell's chart
+notes palpitation complaints recorded in October 2023.
 
-  const loadCachedDemo = useCallback(async (key: string, path: string) => {
-    setError(null);
-    setActiveDemoKey(key);
-    try {
-      const res = await fetch(path);
-      if (!res.ok) throw new Error();
-      const body = (await res.json()) as ClaimResponseWithLetter;
-      setResult(body);
-      setPhase("results");
-    } catch {
-      setError("Could not load demo.");
-      setActiveDemoKey(null);
-    }
-  }, []);
+The denial therefore lacks clinical basis and conflicts with accepted
+national practice standards.
 
-  const handleReset = useCallback(() => {
-    setPhase("idle");
-    setProgress(0);
-    setResult(null);
-    setError(null);
-    setActiveDemoKey(null);
-  }, []);
+Request: Reprocess Z01.810 at allowed rate. Expected: $1,447.00.
 
-  const handleFile = useCallback((file: File) => {
-    if (!ACCEPTED_MIME.includes(file.type) && !file.name.endsWith(".txt")) {
-      setError("Please upload a PDF or text file.");
-      return;
-    }
-    if (file.size > MAX_BYTES) {
-      setError("File must be under 25 MB.");
-      return;
-    }
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TOTAL AMOUNT IN DISPUTE: $3,847.00
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    setError(null);
-    setProgress(0);
-    setPhase("uploading");
+Under 45 CFR §147.136, I request a response within 60 days.
+Please confirm receipt of this appeal and provide a case reference number.
 
-    const formData = new FormData();
-    formData.append("file", file);
+Sincerely,
+Sarah Mitchell
+Member ID: BCBS-2024-9842`,
+};
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/analyze-claim");
+// ── Transform old AnalyzeClaimResponse → new ClaimResult ─────────────────────
+function mapApiResponse(data: AnalyzeClaimResponse): ClaimResult {
+  const c = data.claim;
+  return {
+    patient:       c.patientName   ?? 'Patient',
+    memberId:      c.memberId      ?? '—',
+    insurer:       c.insurerName   ?? 'Insurer',
+    claimNumber:   c.claimId       ?? '—',
+    dateOfService: c.serviceDate   ?? '—',
+    provider:      c.providerName  ?? '—',
+    totalBilled:   c.totals.billed,
+    totalAllowed:  c.totals.billed - c.totals.potentialSavings,
+    totalPaid:     c.totals.insurancePaid,
+    totalDenied:   c.totals.potentialSavings,
+    denials: c.lines
+      .filter(l => l.denial)
+      .map((l, i) => ({
+        id:          l.id,
+        cpt:         l.cpt?.code     ?? `Line ${i + 1}`,
+        description: l.cpt?.description ?? 'Service',
+        icd10:       l.diagnosis?.[0]?.code  ?? '—',
+        icd10Label:  l.diagnosis?.[0]?.description ?? '—',
+        billed:      l.billed,
+        paid:        l.insurancePaid,
+        denied:      l.billed - l.insurancePaid,
+        carc:        l.denial?.carc.code   ?? null,
+        carcLabel:   l.denial?.carc.description ?? null,
+        ourAnalysis: l.denial?.reason ?? null,
+        policyRef:   null,
+        confidence:  l.denial?.successRate != null ? Math.round(l.denial.successRate * 100) : null,
+        strength:    (l.denial?.appealable ? 'strong' : 'weak') as 'strong' | 'weak',
+      })),
+  };
+}
+import { UploadStep }  from '@/components/claim/UploadStep';
+import { AnalyzeStep } from '@/components/claim/AnalyzeStep';
+import { ResultsStep } from '@/components/claim/ResultsStep';
+import { AppealStep }  from '@/components/claim/AppealStep';
+import { CallStep }    from '@/components/claim/CallStep';
 
-    xhr.upload.addEventListener("progress", (e) => {
-      if (e.lengthComputable) setProgress((e.loaded / e.total) * 100);
-    });
+const NAV_STEPS = [
+  { id: 'results', label: 'Results'      },
+  { id: 'appeal',  label: 'Appeal Letter' },
+  { id: 'call',    label: 'Call Insurer'  },
+] as const;
 
-    xhr.upload.addEventListener("load", () => {
-      setProgress(100);
-      setPhase("scanning");
-    });
-
-    xhr.addEventListener("load", () => {
-      setDemoLoadingId(null);
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          const body = JSON.parse(xhr.responseText) as AnalyzeClaimResponse;
-          setResult(body);
-          setPhase("results");
-        } catch {
-          setError("Could not parse the analysis response.");
-          setPhase("idle");
-        }
-      } else {
-        let message = "Analysis failed. Please try again.";
-        try {
-          const body = JSON.parse(xhr.responseText) as { error?: string };
-          if (body.error) message = body.error;
-        } catch {
-          /* ignore */
-        }
-        setError(message);
-        setPhase("idle");
-      }
-    });
-
-    xhr.addEventListener("error", () => {
-      setDemoLoadingId(null);
-      setError("Network error while uploading. Please try again.");
-      setPhase("idle");
-    });
-
-    xhr.send(formData);
-  }, []);
-
-  const handleDemoExample = useCallback(
-    async (example: DemoExample) => {
-      setError(null);
-      setDemoLoadingId(example.id);
-      try {
-        const res = await fetch(example.path);
-        if (!res.ok) throw new Error("Demo example could not be loaded.");
-        const text = await res.text();
-        const file = new File([text], `${example.id}.txt`, { type: "text/plain" });
-        handleFile(file);
-      } catch (err) {
-        setDemoLoadingId(null);
-        setPhase("idle");
-        setError(err instanceof Error ? err.message : "Demo example could not be loaded.");
-      }
-    },
-    [handleFile]
-  );
-
-  // ── Idle: dropzone ──────────────────────────────────────────────────────────
-  if (phase === "idle" || (phase !== "uploading" && phase !== "scanning" && phase !== "results")) {
-    return (
-      <>
-        <section className="claim-landing">
-          <div className="claim-landing-copy">
-            <div className="landing-kicker">Medical bill recovery</div>
-            <h1>Turn denied claims into verified appeal packets.</h1>
-            <p>
-              TrueConsent reads messy EOBs, rejects hallucinated codes, reconciles
-              the math, and builds the appeal package needed to recover money.
-            </p>
-            <div className="landing-actions">
-              {CACHED_DEMOS.map((d) => (
-                <button
-                  key={d.key}
-                  type="button"
-                  className="landing-primary"
-                  onClick={() => loadCachedDemo(d.key, d.path)}
-                >
-                  {d.label}
-                </button>
-              ))}
-              <button
-                type="button"
-                className="landing-secondary"
-                onClick={() => inputRef.current?.click()}
-              >
-                Upload EOB
-              </button>
-            </div>
-            <div className="landing-proof">
-              <span>Code validation</span>
-              <span>Total reconciliation</span>
-              <span>Success-fee model</span>
-            </div>
-          </div>
-
-          <div
-            className={`dropzone landing-dropzone${dragActive ? " is-active" : ""}`}
-            role="button"
-            tabIndex={0}
-            onClick={() => inputRef.current?.click()}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                inputRef.current?.click();
+function NavStepper({ step, setStep }: { step: AppStep; setStep: (s: AppStep) => void }) {
+  const idx = NAV_STEPS.findIndex(s => s.id === step);
+  return (
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, flex:1 }}>
+      {NAV_STEPS.map((s, i) => {
+        const done   = i < idx;
+        const active = s.id === step;
+        return (
+          <div key={s.id} style={{ display:'flex', alignItems:'center', gap:6 }}>
+            {i > 0 && (
+              <div style={{ width:44, height:2, borderRadius:999, background: done ? 'oklch(0.25 0.15 268)' : 'oklch(0.87 0.02 268)', transition:'background 0.3s' }} />
+            )}
+            <div
+              style={{ width:24, height:24, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', transition:'all 0.2s', background: active||done ? 'oklch(0.25 0.15 268)' : '#fff', border:`2px solid ${active||done ? 'oklch(0.25 0.15 268)' : 'oklch(0.82 0.03 268)'}`, boxShadow: active ? '0 0 0 3px oklch(0.25 0.15 268 / 0.15)' : 'none', cursor: done||active ? 'pointer' : 'default' }}
+              onClick={() => (done || active) && setStep(s.id as AppStep)}
+            >
+              {done
+                ? <span style={{ color:'#fff', fontSize:10, fontWeight:700 }}>✓</span>
+                : <span style={{ color: active ? '#fff' : 'oklch(0.65 0.05 268)', fontSize:10, fontWeight:700 }}>{i+1}</span>
               }
-            }}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragActive(true);
-            }}
-            onDragLeave={() => setDragActive(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDragActive(false);
-              const file = e.dataTransfer.files?.[0];
-              if (file) handleFile(file);
-            }}
-          >
-            <div className="dropzone-icon" aria-hidden="true">↑</div>
-            <div className="dropzone-title">Analyze your EOB</div>
-            <div className="dropzone-sub">
-              Drop a PDF/TXT or <span className="browse-link">browse files</span>
             </div>
-            <div className="dropzone-types">Private processing · up to 25 MB</div>
-            <input
-              ref={inputRef}
-              type="file"
-              accept={ACCEPTED_INPUT}
-              className="sr-only"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleFile(file);
-                e.target.value = "";
-              }}
-            />
+            <span style={{ fontSize:13, whiteSpace:'nowrap', color: active ? 'oklch(0.25 0.15 268)' : done ? 'oklch(0.5 0.05 268)' : 'oklch(0.70 0.03 268)', fontWeight: active ? 600 : 400, transition:'all 0.2s' }}>
+              {s.label}
+            </span>
           </div>
-        </section>
+        );
+      })}
+    </div>
+  );
+}
 
-        {error ? (
-          <div className="error-row">
-            {error}
-            <button
-              type="button"
-              style={{ marginLeft: 12, textDecoration: "underline", background: "none", border: "none", cursor: "pointer", color: "inherit", font: "inherit" }}
-              onClick={() => {
-                window.location.href = "/?demo=eob";
-              }}
-            >
-              Load demo instead
-            </button>
-          </div>
-        ) : null}
+export default function Home() {
+  const [step,      setStep]      = useState<AppStep>('upload');
+  const [fileName,  setFileName]  = useState<string>('EOB_document.pdf');
+  const [claim,     setClaim]     = useState<ClaimResult | null>(null);
+  const [appeal,    setAppeal]    = useState<AppealLetter | null>(null);
+  const [callId,    setCallId]    = useState<string | null>(null);
+  const [isSample,  setIsSample]  = useState(false);
 
-        <div className="landing-workflow">
-          <div>
-            <strong>1. Extract</strong>
-            <span>LLM reads insurer layouts that regex parsers miss.</span>
-          </div>
-          <div>
-            <strong>2. Verify</strong>
-            <span>CPT, HCPCS, ICD-10, and CARC codes must match local tables.</span>
-          </div>
-          <div>
-            <strong>3. Recover</strong>
-            <span>Appeal letters and call workflows target only verified savings.</span>
-          </div>
-        </div>
+  const showNav = !['upload', 'analyze'].includes(step);
 
-        <section className="demo-examples" aria-labelledby="demo-examples-title">
-          <div className="demo-examples-head">
-            <div>
-              <div className="card-eyebrow">Demo set</div>
-              <h2 id="demo-examples-title">Run insurer formats through the full pipeline</h2>
-            </div>
-            <button
-              type="button"
-              className="demo-link-btn"
-              onClick={() => {
-                window.location.href = "/?demo=eob";
-              }}
-            >
-              Open fallback walkthrough
-            </button>
+  const handleUpload = async (file: File | 'sample') => {
+    if (file === 'sample') {
+      setIsSample(true);
+    } else {
+      setIsSample(false);
+      setFileName(file.name);
+    }
+    setStep('analyze');
+  };
+
+  const handleAnalyzeDone = async () => {
+    if (isSample) {
+      setClaim(SAMPLE_CLAIM);
+      setStep('results');
+      return;
+    }
+    try {
+      const body = new FormData();
+      body.append('action', 'decode');
+      const res  = await fetch('/api/analyze-claim', { method: 'POST', body });
+      const raw  = await res.json() as AnalyzeClaimResponse;
+      setClaim(mapApiResponse(raw));
+    } catch (err) {
+      console.error('analyze-claim failed', err);
+    }
+    setStep('results');
+  };
+
+  const handleAppeal = async () => {
+    if (!claim) return;
+    setStep('appeal');
+    if (isSample) {
+      setAppeal(SAMPLE_APPEAL);
+      return;
+    }
+    try {
+      const res  = await fetch('/api/analyze-claim', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ action: 'appeal', claimNumber: claim.claimNumber }),
+      });
+      const data = await res.json() as AppealLetter;
+      setAppeal(data);
+    } catch (err) {
+      console.error('appeal generation failed', err);
+    }
+  };
+
+  const handleCall = async () => {
+    setStep('call');
+    try {
+      const res  = await fetch('/api/initiate-call', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ claimNumber: claim?.claimNumber }),
+      });
+      const data = await res.json() as { callId: string };
+      setCallId(data.callId);
+    } catch (err) {
+      console.error('initiate-call failed', err);
+    }
+  };
+
+  return (
+    <div style={{ minHeight:'100vh', display:'flex', flexDirection:'column', background:'#F8F7F4', fontFamily:"'DM Sans', system-ui, sans-serif" }}>
+
+      {/* Nav */}
+      <nav style={{ background:'#F8F7F4', borderBottom:'1px solid oklch(0.90 0.02 268 / 0.7)', position:'sticky', top:0, zIndex:100, backdropFilter:'blur(12px)' }}>
+        <div style={{ maxWidth:1100, margin:'0 auto', padding:'0 24px', height:58, display:'flex', alignItems:'center', gap:20 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', flexShrink:0 }} onClick={() => setStep('upload')}>
+            <div style={{ width:32, height:32, borderRadius:8, background:'oklch(0.25 0.15 268)', color:'#fff', fontWeight:800, fontSize:12, display:'flex', alignItems:'center', justifyContent:'center' }}>TC</div>
+            <span style={{ fontFamily:'"DM Serif Display",Georgia,serif', fontSize:18, color:'oklch(0.18 0.02 250)' }}>TrueConsent</span>
+            <span style={{ fontSize:10, fontWeight:600, background:'oklch(0.35 0.15 268 / 0.1)', color:'oklch(0.35 0.15 268)', borderRadius:999, padding:'2px 7px' }}>beta</span>
           </div>
 
-          <div className="demo-grid">
-            {demoExamples.map((example) => (
-              <button
-                type="button"
-                className="demo-card"
-                key={example.id}
-                onClick={() => handleDemoExample(example)}
-                disabled={demoLoadingId !== null}
-              >
-                <span className={`demo-method demo-method--${example.expectedMethod}`}>
-                  {example.expectedMethod}
-                </span>
-                <strong>{example.label}</strong>
-                <span>{example.summary}</span>
-                <span className="demo-card-action">
-                  {demoLoadingId === example.id ? "Loading..." : "Analyze example"}
-                </span>
+          {showNav && claim && <NavStepper step={step} setStep={setStep} />}
+
+          <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:12 }}>
+            {showNav && (
+              <button style={{ fontSize:13, color:'oklch(0.55 0.05 268)', background:'none', border:'none', cursor:'pointer' }} onClick={() => setStep('upload')}>
+                ← New claim
               </button>
-            ))}
-          </div>
-        </section>
-
-        <div className="privacy-row">
-          Your file is sent securely and is not stored after analysis.
-        </div>
-      </>
-    );
-  }
-
-  // ── Uploading ───────────────────────────────────────────────────────────────
-  if (phase === "uploading") {
-    const pct = Math.min(100, Math.max(0, Math.round(progress)));
-    return (
-      <div className="upload-card">
-        <div className="upload-file">
-          <div className="file-icon" aria-hidden="true">PDF</div>
-          <div className="file-meta">
-            <div className="file-name">Uploading your EOB…</div>
+            )}
+            <div style={{ display:'flex', alignItems:'center', fontSize:12, fontWeight:600, borderRadius:999, padding:'5px 12px', background: step==='call' ? 'oklch(0.52 0.14 142 / 0.1)' : 'oklch(0.35 0.15 268 / 0.08)', color: step==='call' ? 'oklch(0.42 0.12 142)' : 'oklch(0.35 0.15 268)' }}>
+              <span style={{ width:6, height:6, borderRadius:'50%', background:'currentColor', display:'inline-block', marginRight:6, opacity:0.8 }} />
+              {step === 'call' ? 'Call live' : 'Demo mode'}
+            </div>
           </div>
         </div>
-        <div className="progress" aria-label="Upload progress">
-          <div className="progress-bar" style={{ width: `${pct}%` }} />
-        </div>
-        <div className="upload-status">
-          <span>Uploading…</span>
-          <span>{pct}%</span>
-        </div>
-      </div>
-    );
-  }
+      </nav>
 
-  // ── Scanning ────────────────────────────────────────────────────────────────
-  if (phase === "scanning") {
-    return (
-      <div className="scan-card" role="status" aria-live="polite">
-        <div className="scan-title">Analyzing your claim</div>
-        <div className="scan-sub">
-          We&apos;re decoding the insurance codes and identifying opportunities to appeal.
-        </div>
-        <div className="scan-frame" aria-hidden="true">
-          <div className="doc-line h" />
-          <div className="doc-line" />
-          <div className="doc-line medium" />
-          <div className="doc-line" />
-          <div className="doc-line short" />
-          <div className="doc-line h" />
-          <div className="doc-line" />
-          <div className="doc-line medium" />
-          <div className="doc-line" />
-          <div className="doc-line short" />
-          <div className="doc-line medium" />
-          <div className="doc-line" />
-          <div className="scan-glow" />
-          <div className="scan-line" />
-        </div>
-        <div className="scan-status">{SCAN_LABELS[scanIdx]}</div>
-      </div>
-    );
-  }
+      {/* Steps */}
+      <main style={{ flex:1 }}>
+        {step === 'upload'  && <UploadStep  onUpload={handleUpload} />}
+        {step === 'analyze' && <AnalyzeStep fileName={fileName} onDone={handleAnalyzeDone} />}
+        {step === 'results' && claim && <ResultsStep claim={claim} onAppeal={handleAppeal} />}
+        {step === 'appeal'  && appeal && claim && (
+          <AppealStep appeal={appeal} insurerName={claim.insurer} onCall={handleCall} />
+        )}
+        {step === 'call' && callId && claim && (
+          <CallStep
+            callId={callId}
+            insurerName={claim.insurer}
+            insurerPhone="(800) 267-0989"
+            claimNumber={claim.claimNumber}
+            patientName={claim.patient}
+            appealAmount={claim.totalDenied}
+          />
+        )}
+      </main>
 
-  // ── Results ─────────────────────────────────────────────────────────────────
-  if (phase === "results" && result) {
-    return (
-      <>
-        <div className="demo-switcher">
-          {CACHED_DEMOS.map((d) => (
-            <button
-              key={d.key}
-              type="button"
-              className={`demo-switcher-btn${activeDemoKey === d.key ? " demo-switcher-btn--active" : ""}`}
-              onClick={() => loadCachedDemo(d.key, d.path)}
-            >
-              {d.label}
-            </button>
-          ))}
-        </div>
-        <ClaimResults data={result} onReset={handleReset} />
-      </>
-    );
-  }
-
-  return null;
+      {step === 'upload' && (
+        <footer style={{ textAlign:'center', padding:'24px', fontSize:13, color:'oklch(0.65 0.03 268)', display:'flex', justifyContent:'center', gap:10 }}>
+          <span>© 2026 TrueConsent, Inc.</span>
+          <span>·</span><span>HIPAA Compliant</span>
+          <span>·</span><span>Not legal advice</span>
+        </footer>
+      )}
+    </div>
+  );
 }

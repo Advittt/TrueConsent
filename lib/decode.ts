@@ -2,7 +2,7 @@ import type {
   ClaimLine,
   DecodedClaim,
   DecodedCode,
-  DenialItem,
+  ClaimLineDenial,
 } from "@/lib/types/claim";
 import { extractClaimWithLLM } from "@/lib/extract-with-llm";
 import cptTable from "@/lib/codes/cpt.json";
@@ -180,7 +180,7 @@ function parseServiceLines(text: string): ClaimLine[] {
       status = "pending";
     }
 
-    let denial: DenialItem | undefined;
+    let denial: ClaimLineDenial | undefined;
     const primaryCarc = rawDenials.find((d) => d.startsWith("CO-"));
     if (primaryCarc) {
       const carcEntry = lookupCarc(primaryCarc);
@@ -236,7 +236,7 @@ export async function decodeClaim(text: string): Promise<DecodedClaim> {
 
   // Compute totals
   let billed = 0, insurancePaid = 0, patientResponsibility = 0, potentialSavings = 0;
-  const allDenials: DenialItem[] = [];
+  const allDenials: ClaimLineDenial[] = [];
 
   for (const line of lines) {
     billed += line.billed;

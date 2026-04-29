@@ -2,7 +2,7 @@ import { ANALYSIS_MODEL, getClient } from "@/lib/anthropic";
 import cptTable from "@/lib/codes/cpt.json";
 import hcpcsTable from "@/lib/codes/hcpcs.json";
 import carcTable from "@/lib/codes/carc.json";
-import type { ClaimLine, DecodedClaim, DecodedCode, DenialItem } from "@/lib/types/claim";
+import type { ClaimLine, DecodedClaim, DecodedCode, ClaimLineDenial } from "@/lib/types/claim";
 
 interface CodeEntry { code: string; description: string }
 interface CarcEntry extends CodeEntry {
@@ -69,7 +69,7 @@ function lookupCarc(code: string): DecodedCode | undefined {
   };
 }
 
-function buildDenial(carcCode: DecodedCode): DenialItem {
+function buildDenial(carcCode: DecodedCode): ClaimLineDenial {
   return {
     carc: carcCode,
     reason: carcCode.description,
@@ -82,7 +82,7 @@ function buildDenial(carcCode: DecodedCode): DenialItem {
 function statusForLine(
   billed: number,
   insurancePaid: number,
-  denial?: DenialItem
+  denial?: ClaimLineDenial
 ): ClaimLine["status"] {
   if (denial) return insurancePaid > 0 ? "partial" : "denied";
   if (insurancePaid > 0 && insurancePaid < billed) return "partial";
@@ -102,7 +102,7 @@ function responseText(content: unknown): string {
 
 export async function extractClaimWithLLM(rawText: string): Promise<{
   lines: ClaimLine[];
-  denials: DenialItem[];
+  denials: ClaimLineDenial[];
   totals: DecodedClaim["totals"];
   rejectedCodes: string[];
   reconciliationOk: boolean;
@@ -140,7 +140,7 @@ ${rawText}`,
 
   const rejectedCodes: string[] = [];
   const lines: ClaimLine[] = [];
-  const denials: DenialItem[] = [];
+  const denials: ClaimLineDenial[] = [];
   for (const extractedLine of parsed.lines ?? []) {
     const procedureCode = extractedLine.procedureCode?.trim();
     if (!procedureCode) continue;
@@ -151,7 +151,7 @@ ${rawText}`,
       continue;
     }
 
-    const lineDenials: DenialItem[] = [];
+    const lineDenials: ClaimLineDenial[] = [];
     for (const rawCode of extractedLine.carcCodes ?? []) {
       const carcCode = lookupCarc(rawCode);
       if (!carcCode) {
