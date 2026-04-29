@@ -47,12 +47,17 @@ export function CallStep({
         const res = await fetch(`/api/call-status?callId=${callId}`);
         if (!res.ok) return;
         const raw = await res.json();
-        // API returns `transcripts` (plural); normalize to `transcript`
+        // API returns `transcripts` with `role` field; normalize to `transcript` with `speaker`
+        const rawLines = raw.transcript ?? raw.transcripts ?? [];
         const data: CallState = {
           callId:          raw.callId ?? callId,
           status:          raw.status ?? 'dialing',
           durationMs:      raw.durationMs ?? 0,
-          transcript:      raw.transcript ?? raw.transcripts ?? [],
+          transcript:      rawLines.map((l: { role?: string; speaker?: string; text?: string; t?: number }) => ({
+            t:       l.t ?? 0,
+            speaker: l.speaker ?? (l.role === 'agent' ? 'ai' : l.role === 'rep' ? 'Rep' : 'system'),
+            text:    l.text ?? '',
+          })),
           referenceNumber: raw.referenceNumber,
         };
         setCall(data);
