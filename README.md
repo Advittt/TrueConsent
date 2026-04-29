@@ -55,3 +55,95 @@ Build an end-to-end working demo that shows the full user flow:
 ## Project Status
 
 TrueConsent is currently in early hackathon MVP development.
+
+## Running locally
+
+The MVP is a Next.js (App Router) app. From the repo root:
+
+```bash
+cp .env.example .env.local       # then paste your Anthropic API key
+npm install
+npm run dev
+```
+
+Then open <http://localhost:3000>.
+
+You'll need an Anthropic API key with access to the Claude Sonnet 4.5 model
+(or another vision-capable model — override via `ANTHROPIC_MODEL`). Generate
+one at <https://console.anthropic.com/settings/keys>.
+
+### How the analysis works
+
+1. The user drops a PDF or image (PNG, JPG, WEBP, GIF) into the upload area
+   on `/`.
+2. The browser POSTs the file as `multipart/form-data` to `/api/analyze`.
+3. The route base64-encodes the file and sends it directly to Claude as a
+   `document` (PDF) or `image` content block — no separate OCR step.
+4. Claude is forced to call a single `emit_analysis` tool whose JSON schema
+   matches the `Analysis` type in `lib/types.ts`. That guarantees the
+   response is parseable structured data.
+5. The page transitions through `idle → uploading → scanning → results` and
+   renders the analysis in a two-column layout with a sticky red-flag rail.
+
+### API route shape
+
+`POST /api/analyze` (multipart, field `file`)
+
+Response:
+
+```jsonc
+{
+  "analysis": {
+    "summary": "...",
+    "agreements": ["..."],
+    "risks": ["..."],
+    "redFlags": [
+      {
+        "id": "flag-1",
+        "severity": "high" | "medium" | "low",
+        "title": "...",
+        "why": "...",
+        "quote": "...",
+        "ask": "..."
+      }
+    ],
+    "doctorQuestions": ["..."]
+  },
+  "fileName": "consent.pdf",
+  "fileSize": 102400,
+  "durationMs": 11400
+}
+```
+
+Errors come back as `{ "error": "..." }` with a 4xx/5xx status.
+
+### Sample forms
+
+`consent-form-mocks/` contains three sample PDFs you can drop in to demo the
+flow without a real form:
+
+- `general-medical-consent-form.pdf`
+- `orthodontics-consent-form.pdf`
+- `surgery-consent-form.pdf`
+
+### Project layout
+
+```
+app/
+  layout.tsx          # top bar + persistent disclaimer banner
+  page.tsx            # idle → uploading → scanning → results state machine
+  globals.css         # design tokens + scan animation + drawer styles
+  api/analyze/route.ts# POST handler that calls Claude with the file
+components/
+  Dropzone.tsx
+  UploadingCard.tsx
+  ScanningCard.tsx
+  Results.tsx
+  RedFlagRail.tsx
+  RedFlagDrawer.tsx
+lib/
+  anthropic.ts        # memoized SDK client + model id
+  prompt.ts           # system prompt + emit_analysis tool schema
+  types.ts            # Analysis / RedFlag types
+  format.ts           # file size / duration helpers
+```
