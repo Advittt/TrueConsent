@@ -103,8 +103,12 @@ export default function ClaimPage() {
   }, []);
 
   const CACHED_DEMOS: { key: string; label: string; path: string }[] = [
-    { key: "eob",     label: "ER visit — CO-50 denial",  path: "/demo/eob.json" },
-    { key: "surgery", label: "Surgery — multiple denials", path: "/demo/surgery.json" },
+    { key: "eob",          label: "ER visit (BlueCross)",      path: "/demo/eob.json" },
+    { key: "surgery",      label: "Surgery",                   path: "/demo/surgery.json" },
+    { key: "aetna",        label: "Aetna format",              path: "/demo/aetna-alternate-columns.json" },
+    { key: "uhc",          label: "UnitedHealthcare format",   path: "/demo/unitedhealthcare-remark-format.json" },
+    { key: "multipage",    label: "Multi-page OCR",            path: "/demo/multi-page-ocr.json" },
+    { key: "unsupported",  label: "Unsupported doc",           path: "/demo/unsupported-document.json" },
   ];
 
   const [activeDemoKey, setActiveDemoKey] = useState<string | null>(null);
