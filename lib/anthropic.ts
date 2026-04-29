@@ -21,4 +21,4 @@ export function getClient(): Anthropic {
 }
 
 export const ANALYSIS_MODEL =
-  process.env.TOKENROUTER_MODEL ?? "anthropic/claude-opus-4.7";
+  process.env.TOKENROUTER_MODEL ?? "anthropic/claude-opus-4.5";
