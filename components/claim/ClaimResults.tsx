@@ -1,14 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import type { AnalyzeClaimResponse } from "@/lib/types/claim";
 import { formatMoney } from "@/lib/format-money";
 import { SavingsBanner } from "./SavingsBanner";
 import { ClaimTable } from "./ClaimTable";
 import { AppealLetterCard } from "./AppealLetterCard";
+import { AuthModal } from "./AuthModal";
+import { CallModal } from "./CallModal";
 
 // The real backend sends appealLetter as an extra key beyond the typed shape.
 type ExtractionAudit = {
-  source?: "regex" | "llm-fallback" | "demo-llm-fallback";
+  source?: "regex" | "llm-fallback" | "demo-llm-fallback" | "failed";
   confidence?: "high" | "medium" | "low";
   rejectedCodes?: string[];
   reconciliationOk?: boolean;
@@ -34,9 +37,94 @@ interface ClaimResultsProps {
 export function ClaimResults({ data, onReset }: ClaimResultsProps) {
   const { claim, patientFacingSummary } = data;
   const { totals } = claim;
-
-  // Use backend-supplied letter if present, otherwise derive from claim data.
   const appealLetter = data.appealLetter ?? buildAppealLetter(data);
+  const hasAppealable = claim.denials.some((d) => d.appealable);
+  const extractionFailed =
+    claim.extractionMethod === "failed" || claim.kind === "unknown" || claim.lines.length === 0;
+
+  // Call flow state
+  const [showAuth, setShowAuth] = useState(false);
+  const [callSession, setCallSession] = useState<{
+    callId: string; phone: string; insurerName: string; demo: boolean;
+  } | null>(null);
+  const [callError, setCallError] = useState<string | null>(null);
+  const [calling, setCalling] = useState(false);
+
+  async function handleAuthorize(signedAt: string) {
+    setShowAuth(false);
+    setCalling(true);
+    setCallError(null);
+
+    const primaryDenial = claim.lines.find((l) => l.denial?.appealable);
+    const demoMode = !process.env.NEXT_PUBLIC_BLAND_KEY;
+
+    try {
+      const res = await fetch("/api/initiate-call", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          claimId: claim.claimId ?? "unknown",
+          memberId: claim.memberId,
+          patientName: claim.patientName ?? "Patient",
+          insurerName: claim.insurerName ?? "Insurance Company",
+          serviceDate: claim.serviceDate,
+          denialCode: primaryDenial?.denial?.carc.code ?? "CO-50",
+          denialReason: primaryDenial?.denial?.reason ?? "Not medically necessary",
+          procedureCode: primaryDenial?.cpt?.code ?? primaryDenial?.hcpcs?.code ?? "99285",
+          procedureDescription: primaryDenial?.cpt?.description ?? primaryDenial?.hcpcs?.description ?? "ER visit",
+          billedAmount: primaryDenial?.billed ?? 0,
+          authSignedAt: signedAt,
+          demoMode,
+        }),
+      });
+
+      const json = (await res.json()) as { callId?: string; phone?: string; insurerName?: string; demo?: boolean; error?: string };
+      if (!res.ok || json.error) throw new Error(json.error ?? "Call failed to start.");
+
+      setCallSession({
+        callId: json.callId ?? "demo",
+        phone: json.phone ?? "1-800-555-0199",
+        insurerName: json.insurerName ?? (claim.insurerName ?? "Insurance Company"),
+        demo: json.demo ?? demoMode,
+      });
+    } catch (err) {
+      setCallError(err instanceof Error ? err.message : "Could not start call.");
+    } finally {
+      setCalling(false);
+    }
+  }
+
+  if (extractionFailed) {
+    return (
+      <div>
+        <div className="claim-results-header">
+          <div className="claim-results-meta">
+            <span>
+              <span className="claim-results-label">Status</span> Unsupported document
+            </span>
+          </div>
+          <button type="button" className="claim-reset-btn" onClick={onReset}>
+            Upload another EOB
+          </button>
+        </div>
+
+        <div className="failed-extraction-card">
+          <div className="card-eyebrow">Safe failure</div>
+          <h2>We could not confidently read this as an EOB</h2>
+          <p>
+            No service lines, billed amounts, or denial codes were accepted. This is the intended
+            behavior for unsupported documents: the system refuses to invent a claim and asks for a
+            clearer EOB instead.
+          </p>
+          <button type="button" className="claim-reset-btn" onClick={onReset}>
+            Try another document
+          </button>
+        </div>
+
+        <VerificationTrace data={data} />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -76,9 +164,51 @@ export function ClaimResults({ data, onReset }: ClaimResultsProps) {
         potentialSavings={totals.potentialSavings}
       />
 
+      <div className="outcome-strip">
+        <div className="outcome-card">
+          <span className="outcome-label">Appealable denials</span>
+          <strong>{claim.denials.filter((d) => d.appealable).length}</strong>
+          <span>Clinical or coding issues worth challenging.</span>
+        </div>
+        <div className="outcome-card">
+          <span className="outcome-label">Verified service lines</span>
+          <strong>{claim.lines.length}</strong>
+          <span>Accepted only after code-table validation.</span>
+        </div>
+        <div className="outcome-card">
+          <span className="outcome-label">Business model</span>
+          <strong>Success fee</strong>
+          <span>A small percentage only if we recover money.</span>
+        </div>
+      </div>
+
+      {/* ── Call CTA ─────────────────────────────────────────── */}
+      {hasAppealable && (
+        <div className="call-cta">
+          <div className="call-cta-left">
+            <div className="call-cta-title">
+              Let us call {claim.insurerName ?? "your insurer"} for you
+            </div>
+            <div className="call-cta-sub">
+              Average hold time: ~20 min. We navigate the IVR, reach a rep, and file
+              your appeal — you watch the live transcript.
+            </div>
+            {callError && <div className="call-cta-error">{callError}</div>}
+          </div>
+          <button
+            type="button"
+            className="call-cta-btn"
+            onClick={() => setShowAuth(true)}
+            disabled={calling}
+          >
+            {calling ? "Starting call…" : "📞 Call insurance for me"}
+          </button>
+        </div>
+      )}
+
       {/* Plain-English summary */}
       {patientFacingSummary ? (
-        <div className="card" style={{ marginTop: 20 }}>
+        <div className="card summary-card">
           <div className="card-eyebrow">What this means for you</div>
           <p style={{ fontSize: 15, lineHeight: 1.6, color: "var(--muted)" }}>
             {patientFacingSummary}
@@ -124,6 +254,26 @@ export function ClaimResults({ data, onReset }: ClaimResultsProps) {
           Nothing is stored on our servers. <span className="muted">Cache-Control: no-store</span>.
         </div>
       </div>
+
+      {/* Auth modal */}
+      {showAuth && (
+        <AuthModal
+          claim={claim}
+          onAuthorize={handleAuthorize}
+          onCancel={() => setShowAuth(false)}
+        />
+      )}
+
+      {/* Live call modal */}
+      {callSession && (
+        <CallModal
+          callId={callSession.callId}
+          insurerName={callSession.insurerName}
+          phone={callSession.phone}
+          demoMode={callSession.demo}
+          onClose={() => setCallSession(null)}
+        />
+      )}
     </div>
   );
 }
@@ -144,7 +294,13 @@ function VerificationTrace({ data }: { data: ClaimResponseWithLetter }) {
   const sourceLabel =
     audit.source === "llm-fallback" || audit.source === "demo-llm-fallback"
       ? "LLM fallback"
+      : audit.source === "failed"
+        ? "Safe failure"
       : "Deterministic parser";
+  const sourceText =
+    audit.source === "failed"
+      ? "No reliable EOB structure was accepted, so the system stopped before generating claim lines."
+      : `${sourceLabel} converted the EOB into service lines and dollar amounts.`;
   const confidenceText =
     confidence === "high"
       ? "Totals matched and all returned codes were verified."
@@ -167,7 +323,7 @@ function VerificationTrace({ data }: { data: ClaimResponseWithLetter }) {
       <div className="trace-grid">
         <div className="trace-panel">
           <div className="trace-panel-title">1. Extraction source</div>
-          <p>{sourceLabel} converted the EOB into service lines and dollar amounts.</p>
+          <p>{sourceText}</p>
         </div>
         <div className="trace-panel">
           <div className="trace-panel-title">2. Code validation</div>
