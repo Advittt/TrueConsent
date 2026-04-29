@@ -1,0 +1,34 @@
+EXPLANATION OF BENEFITS
+BlueCross BlueShield of California
+Member Services: 1-800-835-8699
+
+Member: Jane Q. Smith
+Member ID: BCB-2204819334
+Group: Employer Plan 5500
+Date of Service: March 3, 2026
+Claim Number: 59103
+Provider: Pacific Surgical Center
+
+SERVICE LINES:
+
+CPT     Description                         Billed      Paid    Responsibility  Status      Reason
+27447   Total knee replacement, left        $42,000.00  $0.00   $0.00           DENIED      CO-50
+29881   Knee arthroscopy w/ meniscectomy    $8,500.00   $0.00   $0.00           DENIED      CO-97
+00400   Anesthesia, procedures on skin      $4,200.00   $3,360.00 $840.00       PARTIAL
+99213   Office or outpatient visit, est     $350.00     $280.00   $70.00        PAID
+J1030   Methylprednisolone sodium succ 40mg $180.00     $144.00   $36.00        PAID
+
+Diagnosis Codes: M17.12 (Primary osteoarthritis, left knee), Z96.641 (Presence of left knee joint implant)
+
+TOTALS:
+Total Billed:          $55,230.00
+Insurance Paid:        $3,784.00
+Your Responsibility:   $946.00
+
+DENIAL REASON CODES:
+CO-50: These are non-covered services because this is not deemed a medical necessity by the payer.
+CO-97: The benefit for this service is included in the payment/allowance for another service/procedure.
+
+APPEAL RIGHTS:
+You have the right to appeal this determination within 180 days.
+Contact: appeals@bcbs-ca.com or 1-800-835-8699

@@ -35,6 +35,21 @@ interface ClaimResultsProps {
 }
 
 export function ClaimResults({ data, onReset }: ClaimResultsProps) {
+  if (!data?.claim) {
+    return (
+      <div>
+        <button type="button" className="claim-reset-btn" onClick={onReset} style={{ marginBottom: 16 }}>
+          Upload another EOB
+        </button>
+        <div className="failed-extraction-card">
+          <div className="card-eyebrow">Unsupported format</div>
+          <h2>Could not read this document as an EOB</h2>
+          <p>No service lines or denial codes were found. Try uploading a different file.</p>
+        </div>
+      </div>
+    );
+  }
+
   const { claim, patientFacingSummary } = data;
   const { totals } = claim;
   const appealLetter = data.appealLetter ?? buildAppealLetter(data);
