@@ -61,16 +61,18 @@ TrueConsent is currently in early hackathon MVP development.
 The MVP is a Next.js (App Router) app. From the repo root:
 
 ```bash
-cp .env.example .env.local       # then paste your Anthropic API key
+cp .env.example .env.local       # then paste your TokenRouter API key
 npm install
 npm run dev
 ```
 
 Then open <http://localhost:3000>.
 
-You'll need an Anthropic API key with access to the Claude Sonnet 4.5 model
-(or another vision-capable model — override via `ANTHROPIC_MODEL`). Generate
-one at <https://console.anthropic.com/settings/keys>.
+Claude requests are routed through [TokenRouter](https://api.tokenrouter.com)
+using the `tokenrouter` env var. The default model is
+`anthropic/claude-opus-4.7`; override with `TOKENROUTER_MODEL` if you want a
+different vision-capable model. The base URL can be overridden with
+`TOKENROUTER_BASE_URL`.
 
 ### How the analysis works
 
