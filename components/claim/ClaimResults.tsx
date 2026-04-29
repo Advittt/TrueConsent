@@ -64,6 +64,7 @@ export function ClaimResults({ data, onReset }: ClaimResultsProps) {
   } | null>(null);
   const [callError, setCallError] = useState<string | null>(null);
   const [calling, setCalling] = useState(false);
+  const [showPipeline, setShowPipeline] = useState(false);
 
   async function handleAuthorize(signedAt: string) {
     setShowAuth(false);
@@ -241,7 +242,20 @@ export function ClaimResults({ data, onReset }: ClaimResultsProps) {
         </span>
       </div>
 
-      <VerificationTrace data={data} />
+      {/* Pipeline toggle */}
+      <div className="pipeline-toggle-row">
+        <button
+          type="button"
+          className="pipeline-toggle-btn"
+          onClick={() => setShowPipeline((v) => !v)}
+        >
+          {showPipeline ? "▲ Hide" : "▼ Show"} how this was built
+        </button>
+        <span className="pipeline-toggle-hint">
+          Code table lookups · total reconciliation · denial scoring
+        </span>
+      </div>
+      {showPipeline && <VerificationTrace data={data} />}
 
       {/* Line-item table */}
       <div style={{ marginTop: 12 }}>

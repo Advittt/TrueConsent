@@ -1764,6 +1764,33 @@ button.browse-link {
 }
 .topnav a:hover { background: rgba(0, 0, 0, 0.05); color: var(--fg, #111); }
 
+/* ---------- Pipeline toggle ---------- */
+.pipeline-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.pipeline-toggle-btn {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.pipeline-toggle-btn:hover { background: var(--primary-tint); border-color: var(--primary); }
+.pipeline-toggle-hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
 /* ---------- Pipeline steps ---------- */
 .pipeline-step {
   border: 1px solid var(--border);
