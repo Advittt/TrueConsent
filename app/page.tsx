@@ -8,6 +8,13 @@ import { ClaimResults } from "@/components/claim/ClaimResults";
 type ClaimResponseWithLetter = AnalyzeClaimResponse & { appealLetter?: string };
 
 type Phase = "idle" | "uploading" | "scanning" | "results";
+type DemoExample = {
+  id: string;
+  label: string;
+  path: string;
+  summary: string;
+  expectedMethod: "regex" | "llm" | "failed";
+};
 
 const ACCEPTED_MIME = ["application/pdf", "text/plain"];
 const ACCEPTED_INPUT = ".pdf,.txt,application/pdf,text/plain";
@@ -27,6 +34,8 @@ export default function ClaimPage() {
   const [error, setError] = useState<string | null>(null);
   const [scanIdx, setScanIdx] = useState(0);
   const [dragActive, setDragActive] = useState(false);
+  const [demoExamples, setDemoExamples] = useState<DemoExample[]>([]);
+  const [demoLoadingId, setDemoLoadingId] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   // Scan label rotation
@@ -39,17 +48,38 @@ export default function ClaimPage() {
     return () => window.clearInterval(id);
   }, [phase]);
 
-  // Demo mode: ?demo=eob
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/demo/eob-examples/index.json")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((examples: DemoExample[]) => {
+        if (!cancelled) setDemoExamples(examples);
+      })
+      .catch(() => {
+        if (!cancelled) setDemoExamples([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Demo mode: ?demo=eob or ?demo=surgery
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("demo") !== "eob") return;
+    const demo = params.get("demo");
+    const DEMO_FILES: Record<string, string> = {
+      eob: "/demo/eob.json",
+      surgery: "/demo/surgery.json",
+    };
+    const path = demo ? DEMO_FILES[demo] : null;
+    if (!path) return;
 
     let cancelled = false;
     setError(null);
 
     async function loadDemo() {
       try {
-        const res = await fetch("/demo/eob.json");
+        const res = await fetch(path!);
         if (res.ok) {
           const body = (await res.json()) as AnalyzeClaimResponse;
           if (!cancelled) {
@@ -72,11 +102,34 @@ export default function ClaimPage() {
     };
   }, []);
 
+  const CACHED_DEMOS: { key: string; label: string; path: string }[] = [
+    { key: "eob",     label: "ER visit — CO-50 denial",  path: "/demo/eob.json" },
+    { key: "surgery", label: "Surgery — multiple denials", path: "/demo/surgery.json" },
+  ];
+
+  const [activeDemoKey, setActiveDemoKey] = useState<string | null>(null);
+
+  const loadCachedDemo = useCallback(async (key: string, path: string) => {
+    setError(null);
+    setActiveDemoKey(key);
+    try {
+      const res = await fetch(path);
+      if (!res.ok) throw new Error();
+      const body = (await res.json()) as ClaimResponseWithLetter;
+      setResult(body);
+      setPhase("results");
+    } catch {
+      setError("Could not load demo.");
+      setActiveDemoKey(null);
+    }
+  }, []);
+
   const handleReset = useCallback(() => {
     setPhase("idle");
     setProgress(0);
     setResult(null);
     setError(null);
+    setActiveDemoKey(null);
   }, []);
 
   const handleFile = useCallback((file: File) => {
@@ -109,6 +162,7 @@ export default function ClaimPage() {
     });
 
     xhr.addEventListener("load", () => {
+      setDemoLoadingId(null);
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
           const body = JSON.parse(xhr.responseText) as AnalyzeClaimResponse;
@@ -132,6 +186,7 @@ export default function ClaimPage() {
     });
 
     xhr.addEventListener("error", () => {
+      setDemoLoadingId(null);
       setError("Network error while uploading. Please try again.");
       setPhase("idle");
     });
@@ -139,59 +194,105 @@ export default function ClaimPage() {
     xhr.send(formData);
   }, []);
 
+  const handleDemoExample = useCallback(
+    async (example: DemoExample) => {
+      setError(null);
+      setDemoLoadingId(example.id);
+      try {
+        const res = await fetch(example.path);
+        if (!res.ok) throw new Error("Demo example could not be loaded.");
+        const text = await res.text();
+        const file = new File([text], `${example.id}.txt`, { type: "text/plain" });
+        handleFile(file);
+      } catch (err) {
+        setDemoLoadingId(null);
+        setPhase("idle");
+        setError(err instanceof Error ? err.message : "Demo example could not be loaded.");
+      }
+    },
+    [handleFile]
+  );
+
   // ── Idle: dropzone ──────────────────────────────────────────────────────────
   if (phase === "idle" || (phase !== "uploading" && phase !== "scanning" && phase !== "results")) {
     return (
       <>
-        <div className="hero">
-          <h1>Fight your medical bill</h1>
-          <p>
-            Drop your Explanation of Benefits (EOB) and we&apos;ll decode every
-            denial, calculate your savings, and draft your appeal letter.
-          </p>
-        </div>
-
-        <div
-          className={`dropzone${dragActive ? " is-active" : ""}`}
-          role="button"
-          tabIndex={0}
-          onClick={() => inputRef.current?.click()}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              inputRef.current?.click();
-            }
-          }}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragActive(true);
-          }}
-          onDragLeave={() => setDragActive(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragActive(false);
-            const file = e.dataTransfer.files?.[0];
-            if (file) handleFile(file);
-          }}
-        >
-          <div className="dropzone-icon" aria-hidden="true">↑</div>
-          <div className="dropzone-title">Drop your EOB here</div>
-          <div className="dropzone-sub">
-            or <span className="browse-link">browse your files</span>
+        <section className="claim-landing">
+          <div className="claim-landing-copy">
+            <div className="landing-kicker">Medical bill recovery</div>
+            <h1>Turn denied claims into verified appeal packets.</h1>
+            <p>
+              TrueConsent reads messy EOBs, rejects hallucinated codes, reconciles
+              the math, and builds the appeal package needed to recover money.
+            </p>
+            <div className="landing-actions">
+              {CACHED_DEMOS.map((d) => (
+                <button
+                  key={d.key}
+                  type="button"
+                  className="landing-primary"
+                  onClick={() => loadCachedDemo(d.key, d.path)}
+                >
+                  {d.label}
+                </button>
+              ))}
+              <button
+                type="button"
+                className="landing-secondary"
+                onClick={() => inputRef.current?.click()}
+              >
+                Upload EOB
+              </button>
+            </div>
+            <div className="landing-proof">
+              <span>Code validation</span>
+              <span>Total reconciliation</span>
+              <span>Success-fee model</span>
+            </div>
           </div>
-          <div className="dropzone-types">Accepts PDF or TXT · up to 25 MB</div>
-          <input
-            ref={inputRef}
-            type="file"
-            accept={ACCEPTED_INPUT}
-            className="sr-only"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleFile(file);
-              e.target.value = "";
+
+          <div
+            className={`dropzone landing-dropzone${dragActive ? " is-active" : ""}`}
+            role="button"
+            tabIndex={0}
+            onClick={() => inputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                inputRef.current?.click();
+              }
             }}
-          />
-        </div>
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragActive(true);
+            }}
+            onDragLeave={() => setDragActive(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragActive(false);
+              const file = e.dataTransfer.files?.[0];
+              if (file) handleFile(file);
+            }}
+          >
+            <div className="dropzone-icon" aria-hidden="true">↑</div>
+            <div className="dropzone-title">Analyze your EOB</div>
+            <div className="dropzone-sub">
+              Drop a PDF/TXT or <span className="browse-link">browse files</span>
+            </div>
+            <div className="dropzone-types">Private processing · up to 25 MB</div>
+            <input
+              ref={inputRef}
+              type="file"
+              accept={ACCEPTED_INPUT}
+              className="sr-only"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleFile(file);
+                e.target.value = "";
+              }}
+            />
+          </div>
+        </section>
 
         {error ? (
           <div className="error-row">
@@ -208,17 +309,59 @@ export default function ClaimPage() {
           </div>
         ) : null}
 
-        <div className="sample-row">
-          Want to see a demo?
-          <button
-            type="button"
-            onClick={() => {
-              window.location.href = "/?demo=eob";
-            }}
-          >
-            Load sample EOB
-          </button>
+        <div className="landing-workflow">
+          <div>
+            <strong>1. Extract</strong>
+            <span>LLM reads insurer layouts that regex parsers miss.</span>
+          </div>
+          <div>
+            <strong>2. Verify</strong>
+            <span>CPT, HCPCS, ICD-10, and CARC codes must match local tables.</span>
+          </div>
+          <div>
+            <strong>3. Recover</strong>
+            <span>Appeal letters and call workflows target only verified savings.</span>
+          </div>
         </div>
+
+        <section className="demo-examples" aria-labelledby="demo-examples-title">
+          <div className="demo-examples-head">
+            <div>
+              <div className="card-eyebrow">Demo set</div>
+              <h2 id="demo-examples-title">Run insurer formats through the full pipeline</h2>
+            </div>
+            <button
+              type="button"
+              className="demo-link-btn"
+              onClick={() => {
+                window.location.href = "/?demo=eob";
+              }}
+            >
+              Open fallback walkthrough
+            </button>
+          </div>
+
+          <div className="demo-grid">
+            {demoExamples.map((example) => (
+              <button
+                type="button"
+                className="demo-card"
+                key={example.id}
+                onClick={() => handleDemoExample(example)}
+                disabled={demoLoadingId !== null}
+              >
+                <span className={`demo-method demo-method--${example.expectedMethod}`}>
+                  {example.expectedMethod}
+                </span>
+                <strong>{example.label}</strong>
+                <span>{example.summary}</span>
+                <span className="demo-card-action">
+                  {demoLoadingId === example.id ? "Loading..." : "Analyze example"}
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
 
         <div className="privacy-row">
           Your file is sent securely and is not stored after analysis.
@@ -280,7 +423,23 @@ export default function ClaimPage() {
 
   // ── Results ─────────────────────────────────────────────────────────────────
   if (phase === "results" && result) {
-    return <ClaimResults data={result} onReset={handleReset} />;
+    return (
+      <>
+        <div className="demo-switcher">
+          {CACHED_DEMOS.map((d) => (
+            <button
+              key={d.key}
+              type="button"
+              className={`demo-switcher-btn${activeDemoKey === d.key ? " demo-switcher-btn--active" : ""}`}
+              onClick={() => loadCachedDemo(d.key, d.path)}
+            >
+              {d.label}
+            </button>
+          ))}
+        </div>
+        <ClaimResults data={result} onReset={handleReset} />
+      </>
+    );
   }
 
   return null;
