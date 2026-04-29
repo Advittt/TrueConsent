@@ -70,7 +70,7 @@ Then open <http://localhost:3000>.
 
 Claude requests are routed through [TokenRouter](https://api.tokenrouter.com)
 using the `tokenrouter` env var. The default model is
-`anthropic/claude-opus-4.7`; override with `TOKENROUTER_MODEL` if you want a
+`anthropic/claude-opus-4.5`; override with `TOKENROUTER_MODEL` if you want a
 different vision-capable model. The base URL can be overridden with
 `TOKENROUTER_BASE_URL`.
 
