@@ -143,7 +143,7 @@ export function Dropzone({ onFile }: DropzoneProps) {
       {error ? <div className="error-row">{error}</div> : null}
 
       <div className="privacy-row">
-        Your file is sent securely to Anthropic&apos;s Claude model for
+        Your file is sent securely to Claude (routed via TokenRouter) for
         analysis and is not stored after the session ends.
       </div>
     </>
