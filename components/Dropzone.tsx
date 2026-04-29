@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const ACCEPTED_MIME = [
   "application/pdf",
@@ -12,6 +12,7 @@ const ACCEPTED_MIME = [
 ];
 
 const ACCEPTED_INPUT = ".pdf,.png,.jpg,.jpeg,.webp,.gif,application/pdf,image/*";
+const CAMERA_INPUT = "image/*";
 const MAX_BYTES = 25 * 1024 * 1024;
 
 interface DropzoneProps {
@@ -20,8 +21,18 @@ interface DropzoneProps {
 
 export function Dropzone({ onFile }: DropzoneProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const [active, setActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cameraCapable, setCameraCapable] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+    const touchCapable =
+      "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    setCameraCapable(coarsePointer || touchCapable);
+  }, []);
 
   const handleFile = useCallback(
     (file: File | undefined | null) => {
@@ -77,9 +88,29 @@ export function Dropzone({ onFile }: DropzoneProps) {
         <div className="dropzone-icon" aria-hidden="true">
           ↑
         </div>
-        <div className="dropzone-title">Drop a PDF or image here</div>
+        <div className="dropzone-title">
+          {cameraCapable
+            ? "Drop, browse, or snap a photo"
+            : "Drop a PDF or image here"}
+        </div>
         <div className="dropzone-sub">
           or <span className="browse-link">browse your files</span>
+          {cameraCapable ? (
+            <>
+              {" "}
+              ·{" "}
+              <button
+                type="button"
+                className="browse-link camera-link"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  cameraInputRef.current?.click();
+                }}
+              >
+                use your camera
+              </button>
+            </>
+          ) : null}
         </div>
         <div className="dropzone-types">
           Accepts PDF, JPG, PNG, WEBP, GIF · up to 25 MB
@@ -89,8 +120,24 @@ export function Dropzone({ onFile }: DropzoneProps) {
           type="file"
           accept={ACCEPTED_INPUT}
           className="sr-only"
-          onChange={(e) => handleFile(e.target.files?.[0])}
+          onChange={(e) => {
+            handleFile(e.target.files?.[0]);
+            e.target.value = "";
+          }}
         />
+        {cameraCapable ? (
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept={CAMERA_INPUT}
+            capture="environment"
+            className="sr-only"
+            onChange={(e) => {
+              handleFile(e.target.files?.[0]);
+              e.target.value = "";
+            }}
+          />
+        ) : null}
       </div>
 
       {error ? <div className="error-row">{error}</div> : null}
