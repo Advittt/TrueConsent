@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ANALYSIS_MODEL, getClient } from "@/lib/anthropic";
 import { ANALYSIS_PROMPT, ANALYSIS_TOOL, SYSTEM_PROMPT } from "@/lib/prompt";
+import { runDeterministicChecks } from "@/lib/checks";
 import type { Analysis, AnalyzeResponse } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -126,8 +127,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 502 });
   }
 
+  let checks = null;
+  try {
+    checks = await runDeterministicChecks(buffer, file.type, analysis);
+  } catch {
+    checks = null;
+  }
+
   const payload: AnalyzeResponse = {
     analysis,
+    checks,
     fileName: file.name,
     fileSize: file.size,
     durationMs: Date.now() - started,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Dropzone } from "@/components/Dropzone";
 import { UploadingCard } from "@/components/UploadingCard";
 import { ScanningCard } from "@/components/ScanningCard";
@@ -22,6 +22,40 @@ export default function HomePage() {
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const demo = params.get("demo");
+    if (demo !== "surgery") return;
+
+    let cancelled = false;
+    setError(null);
+    fetch(`/demo/${demo}.json`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Demo analysis is unavailable.");
+        }
+        return response.json() as Promise<AnalyzeResponse>;
+      })
+      .then((body) => {
+        if (cancelled) return;
+        setPending(null);
+        setProgress(100);
+        setResult(body);
+        setPhase("results");
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(
+          err instanceof Error ? err.message : "Could not load demo analysis."
+        );
+        setPhase("idle");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleReset = useCallback(() => {
     setPhase("idle");
@@ -117,6 +151,7 @@ export default function HomePage() {
     return (
       <Results
         analysis={result.analysis}
+        checks={result.checks}
         fileName={result.fileName}
         durationMs={result.durationMs}
         onReset={handleReset}

@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import type { Analysis } from "@/lib/types";
+import type { Analysis, DeterministicChecks } from "@/lib/types";
 import { formatDuration } from "@/lib/format";
 import { RedFlagRail } from "./RedFlagRail";
 import { RedFlagDrawer } from "./RedFlagDrawer";
+import { VerificationPanel } from "./VerificationPanel";
 
 interface ResultsProps {
   analysis: Analysis;
+  checks: DeterministicChecks | null;
   fileName: string;
   durationMs: number;
   onReset: () => void;
@@ -15,13 +17,16 @@ interface ResultsProps {
 
 export function Results({
   analysis,
+  checks,
   fileName,
   durationMs,
   onReset,
 }: ResultsProps) {
   const [selectedFlagId, setSelectedFlagId] = useState<string | null>(null);
+  const verifiedFlags = checks?.redFlagsVerified ?? null;
+  const flagsForRail = verifiedFlags ?? analysis.redFlags;
   const selectedFlag =
-    analysis.redFlags.find((f) => f.id === selectedFlagId) ?? null;
+    flagsForRail.find((f) => f.id === selectedFlagId) ?? null;
 
   return (
     <>
@@ -91,10 +96,13 @@ export function Results({
           </section>
         </div>
 
-        <RedFlagRail
-          flags={analysis.redFlags}
-          onSelect={setSelectedFlagId}
-        />
+        <div className="rail-stack">
+          <RedFlagRail
+            flags={flagsForRail}
+            onSelect={setSelectedFlagId}
+          />
+          <VerificationPanel checks={checks} />
+        </div>
       </div>
 
       <RedFlagDrawer

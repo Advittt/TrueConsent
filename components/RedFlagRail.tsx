@@ -1,10 +1,21 @@
 "use client";
 
-import type { RedFlag } from "@/lib/types";
+import type { RedFlag, VerifiedRedFlag } from "@/lib/types";
 
 interface RedFlagRailProps {
-  flags: RedFlag[];
+  flags: (RedFlag | VerifiedRedFlag)[];
   onSelect: (id: string) => void;
+}
+
+function verificationBadge(f: RedFlag | VerifiedRedFlag) {
+  if (!("verification" in f)) return null;
+  if (f.verification === "verified")
+    return <span className="verify-badge ok" title="Verbatim quote found in document">✓ verbatim</span>;
+  if (f.verification === "fuzzy")
+    return <span className="verify-badge warn" title={`Fuzzy match (${Math.round((f.matchScore ?? 0) * 100)}%)`}>~ fuzzy</span>;
+  if (f.verification === "unverified")
+    return <span className="verify-badge bad" title="Quote not found in document">! unverified</span>;
+  return null;
 }
 
 export function RedFlagRail({ flags, onSelect }: RedFlagRailProps) {
@@ -44,6 +55,7 @@ export function RedFlagRail({ flags, onSelect }: RedFlagRailProps) {
                 {flag.severity}
               </span>
               <span className="flag-title">{flag.title}</span>
+              {verificationBadge(flag)}
             </div>
             <div className="flag-chev" aria-hidden="true">
               ›
