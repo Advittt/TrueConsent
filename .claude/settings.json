@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "reboot-skills": {
+      "source": {
+        "source": "github",
+        "repo": "reboot-dev/reboot-skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "reboot-chat-app@reboot-skills": true
+  }
+}
