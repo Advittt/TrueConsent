@@ -1,0 +1,110 @@
+{
+  "J0696": {
+    "code": "J0696",
+    "description": "Injection, ceftriaxone sodium, per 250 mg (antibiotic)"
+  },
+  "J1100": {
+    "code": "J1100",
+    "description": "Injection, dexamethasone sodium phosphate, 1 mg (corticosteroid)"
+  },
+  "J2270": {
+    "code": "J2270",
+    "description": "Injection, morphine sulfate, up to 10 mg (opioid analgesic)"
+  },
+  "J3490": {
+    "code": "J3490",
+    "description": "Unclassified drugs"
+  },
+  "J7030": {
+    "code": "J7030",
+    "description": "Normal saline (NS) solution, 500 ml"
+  },
+  "J7040": {
+    "code": "J7040",
+    "description": "Normal saline solution, 1,000 ml"
+  },
+  "J7050": {
+    "code": "J7050",
+    "description": "Normal saline solution, 250 ml"
+  },
+  "J2405": {
+    "code": "J2405",
+    "description": "Injection, ondansetron hydrochloride, per 1 mg (anti-nausea)"
+  },
+  "J2550": {
+    "code": "J2550",
+    "description": "Injection, promethazine HCl, up to 50 mg (anti-nausea)"
+  },
+  "J0171": {
+    "code": "J0171",
+    "description": "Injection, adrenalin (epinephrine), 0.1 mg"
+  },
+  "J3420": {
+    "code": "J3420",
+    "description": "Injection, vitamin B-12, up to 1,000 mcg"
+  },
+  "J1030": {
+    "code": "J1030",
+    "description": "Injection, methylprednisolone acetate, 40 mg (steroid)"
+  },
+  "J1040": {
+    "code": "J1040",
+    "description": "Injection, methylprednisolone acetate, 80 mg (steroid)"
+  },
+  "J2310": {
+    "code": "J2310",
+    "description": "Injection, naloxone HCl, per 1 mg (opioid reversal)"
+  },
+  "J0690": {
+    "code": "J0690",
+    "description": "Injection, cefazolin sodium, 500 mg (antibiotic)"
+  },
+  "J1580": {
+    "code": "J1580",
+    "description": "Injection, garamycin gentamicin, up to 80 mg (antibiotic)"
+  },
+  "J2001": {
+    "code": "J2001",
+    "description": "Injection, lidocaine HCl, 10 mg (local anesthetic)"
+  },
+  "A0427": {
+    "code": "A0427",
+    "description": "Ambulance service, advanced life support (ALS), non-emergency"
+  },
+  "A0429": {
+    "code": "A0429",
+    "description": "Ambulance service, basic life support (BLS), emergency"
+  },
+  "A0430": {
+    "code": "A0430",
+    "description": "Ambulance service, air transport, fixed wing"
+  },
+  "A0431": {
+    "code": "A0431",
+    "description": "Ambulance service, air transport, rotary wing (helicopter)"
+  },
+  "E0601": {
+    "code": "E0601",
+    "description": "Continuous positive airway pressure (CPAP) device"
+  },
+  "E0627": {
+    "code": "E0627",
+    "description": "Seat lift mechanism"
+  },
+  "K0001": {
+    "code": "K0001",
+    "description": "Standard wheelchair"
+  },
+  "K0004": {
+    "code": "K0004",
+    "description": "High strength, lightweight wheelchair"
+  },
+  "L1906": {
+    "code": "L1906",
+    "description": "Ankle foot orthosis (AFO), posterior solid ankle"
+  },
+  "A4570": {
+    "code": "A4570",
+    "description": "Splint"
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "fileName": "surgery-consent-form.pdf",
+  "fileSize": 9019,
+  "durationMs": 4200,
+  "analysis": {
+    "summary": "This is a surgical procedure consent form (CONS-301). By signing, the patient authorizes the named surgical team to perform the listed procedure, including any incidental or related procedures the surgeon deems medically necessary during the operation. The form also includes an Anesthesia and Sedation Sub-Consent (CONS-310) covering general, regional, and monitored sedation options.",
+    "agreements": [
+      "You authorize the surgeon and operating team to perform the listed procedure.",
+      "You consent to anesthesia, including general, regional, or monitored sedation as judged appropriate.",
+      "You authorize the team to perform additional procedures the surgeon deems necessary during the operation.",
+      "You authorize the use and storage of any tissue removed for diagnostic, research, or educational purposes.",
+      "You assume financial responsibility for any portion of the procedure not covered by insurance."
+    ],
+    "risks": [
+      "General surgical risks including bleeding, infection, and reaction to anesthesia.",
+      "Possibility of malignant hyperthermia, a rare anesthesia complication.",
+      "Risk of injury to nearby tissue or organs during the procedure.",
+      "Possible need for additional procedures discovered intraoperatively.",
+      "Recovery may vary; some complications may not become apparent until after discharge."
+    ],
+    "redFlags": [
+      {
+        "id": "rf-1",
+        "severity": "high",
+        "title": "Open-ended scope: 'such other procedures as deemed necessary'",
+        "why": "This clause grants the surgeon authority to perform unstated additional procedures while you are under anesthesia, with no opportunity for you to consent at the time.",
+        "quote": "such other procedures as the surgeon deems medically necessary",
+        "ask": "Can we list specific contingencies, or require a separate conversation if anything new is found?"
+      },
+      {
+        "id": "rf-2",
+        "severity": "high",
+        "title": "Tissue retention for unspecified research / education",
+        "why": "Your removed tissue can be retained and used for research or education without further specifics about the studies it may support.",
+        "quote": "any tissue removed may be retained for diagnostic, research, or educational purposes",
+        "ask": "Can I opt out of research/educational use while still consenting to the procedure?"
+      },
+      {
+        "id": "rf-3",
+        "severity": "medium",
+        "title": "Financial responsibility for non-covered portions",
+        "why": "Any portion not paid by insurance becomes the patient's debt; this transfers full payor risk to you.",
+        "quote": "patient assumes financial responsibility for any portion not covered by insurance",
+        "ask": "Can I get a written cost estimate and an itemized breakdown before the procedure?"
+      },
+      {
+        "id": "rf-4",
+        "severity": "low",
+        "title": "Anesthesia sub-consent — malignant hyperthermia disclosure",
+        "why": "The anesthesia sub-consent acknowledges malignant hyperthermia, a rare but life-threatening reaction. Worth confirming family history was discussed.",
+        "quote": "I acknowledge the risk of malignant hyperthermia",
+        "ask": "Was my family history of anesthesia reactions reviewed before this consent?"
+      }
+    ],
+    "doctorQuestions": [
+      "What specific procedures might be added if you find something unexpected?",
+      "What is your plan if the procedure needs to extend beyond what we discussed today?",
+      "Who exactly will perform each step of the procedure?",
+      "What is the recovery timeline, and what would prompt me to call you afterwards?",
+      "Can I opt out of any research or educational use of removed tissue?"
+    ]
+  },
+  "checks": {
+    "textExtracted": true,
+    "textLength": 6846,
+    "modality": {
+      "detected": "surgery",
+      "confidence": 0.9,
+      "signals": [
+        "Surgical Procedure Consent",
+        "malignant hyperthermia",
+        "Anesthesia and Sedation Sub-Consent",
+        "Surgical"
+      ]
+    },
+    "patternHits": [
+      {
+        "tag": "blanket-consent",
+        "label": "Blanket / open-ended consent",
+        "severity": "high",
+        "excerpt": "I authorize such other procedures as the surgeon deems medically necessary during the operation",
+        "offset": 1820
+      },
+      {
+        "tag": "financial-responsibility",
+        "label": "Financial responsibility shift",
+        "severity": "medium",
+        "excerpt": "patient assumes financial responsibility for any portion not covered by insurance",
+        "offset": 4112
+      },
+      {
+        "tag": "anesthesia-waiver",
+        "label": "Anesthesia-specific risk acknowledgement",
+        "severity": "low",
+        "excerpt": "I acknowledge the risk of malignant hyperthermia and other anesthesia complications",
+        "offset": 5340
+      }
+    ],
+    "requiredElements": [
+      { "name": "Patient name field", "present": true },
+      { "name": "Date of birth", "present": true },
+      { "name": "Signature line", "present": true },
+      { "name": "Date signed", "present": true },
+      { "name": "Witness or guardian", "present": true },
+      { "name": "Form ID / revision", "present": true },
+      { "name": "Provider / clinic name", "present": true }
+    ],
+    "redFlagsVerified": [
+      {
+        "id": "rf-1",
+        "severity": "high",
+        "title": "Open-ended scope: 'such other procedures as deemed necessary'",
+        "why": "This clause grants the surgeon authority to perform unstated additional procedures while you are under anesthesia, with no opportunity for you to consent at the time.",
+        "quote": "such other procedures as the surgeon deems medically necessary",
+        "ask": "Can we list specific contingencies, or require a separate conversation if anything new is found?",
+        "verification": "verified",
+        "matchScore": 1,
+        "matchOffset": 1820
+      },
+      {
+        "id": "rf-2",
+        "severity": "high",
+        "title": "Tissue retention for unspecified research / education",
+        "why": "Your removed tissue can be retained and used for research or education without further specifics about the studies it may support.",
+        "quote": "any tissue removed may be retained for diagnostic, research, or educational purposes",
+        "ask": "Can I opt out of research/educational use while still consenting to the procedure?",
+        "verification": "verified",
+        "matchScore": 1,
+        "matchOffset": 2640
+      },
+      {
+        "id": "rf-3",
+        "severity": "medium",
+        "title": "Financial responsibility for non-covered portions",
+        "why": "Any portion not paid by insurance becomes the patient's debt; this transfers full payor risk to you.",
+        "quote": "patient assumes financial responsibility for any portion not covered by insurance",
+        "ask": "Can I get a written cost estimate and an itemized breakdown before the procedure?",
+        "verification": "verified",
+        "matchScore": 1,
+        "matchOffset": 4112
+      },
+      {
+        "id": "rf-4",
+        "severity": "low",
+        "title": "Anesthesia sub-consent — malignant hyperthermia disclosure",
+        "why": "The anesthesia sub-consent acknowledges malignant hyperthermia, a rare but life-threatening reaction. Worth confirming family history was discussed.",
+        "quote": "I acknowledge the risk of malignant hyperthermia",
+        "ask": "Was my family history of anesthesia reactions reviewed before this consent?",
+        "verification": "verified",
+        "matchScore": 1,
+        "matchOffset": 5340
+      }
+    ],
+    "taxonomy": [
+      { "id": "rf-1", "tag": "blanket-consent", "label": "Open-ended scope: 'such other procedures as deemed necessary'" },
+      { "id": "rf-2", "tag": "data-sharing", "label": "Tissue retention for unspecified research / education" },
+      { "id": "rf-3", "tag": "financial-responsibility", "label": "Financial responsibility for non-covered portions" },
+      { "id": "rf-4", "tag": "anesthesia-waiver", "label": "Anesthesia sub-consent — malignant hyperthermia disclosure" }
+    ],
+    "trustScore": 100
+  }
+}

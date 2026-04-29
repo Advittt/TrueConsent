@@ -1,0 +1,194 @@
+{
+  "J18.9": {
+    "code": "J18.9",
+    "description": "Pneumonia, unspecified organism"
+  },
+  "J18.1": {
+    "code": "J18.1",
+    "description": "Lobar pneumonia, unspecified organism"
+  },
+  "J06.9": {
+    "code": "J06.9",
+    "description": "Acute upper respiratory infection, unspecified"
+  },
+  "J20.9": {
+    "code": "J20.9",
+    "description": "Acute bronchitis, unspecified"
+  },
+  "J45.20": {
+    "code": "J45.20",
+    "description": "Mild intermittent asthma, uncomplicated"
+  },
+  "J45.40": {
+    "code": "J45.40",
+    "description": "Moderate persistent asthma, uncomplicated"
+  },
+  "J96.00": {
+    "code": "J96.00",
+    "description": "Acute respiratory failure, unspecified whether with hypoxia or hypercapnia"
+  },
+  "R07.9": {
+    "code": "R07.9",
+    "description": "Chest pain, unspecified"
+  },
+  "R07.4": {
+    "code": "R07.4",
+    "description": "Chest pain on breathing"
+  },
+  "R50.9": {
+    "code": "R50.9",
+    "description": "Fever, unspecified"
+  },
+  "R51.9": {
+    "code": "R51.9",
+    "description": "Headache, unspecified"
+  },
+  "R10.9": {
+    "code": "R10.9",
+    "description": "Unspecified abdominal pain"
+  },
+  "R10.0": {
+    "code": "R10.0",
+    "description": "Acute abdomen"
+  },
+  "R55": {
+    "code": "R55",
+    "description": "Syncope and collapse"
+  },
+  "R00.0": {
+    "code": "R00.0",
+    "description": "Tachycardia, unspecified"
+  },
+  "R00.1": {
+    "code": "R00.1",
+    "description": "Bradycardia, unspecified"
+  },
+  "I10": {
+    "code": "I10",
+    "description": "Essential (primary) hypertension"
+  },
+  "I21.9": {
+    "code": "I21.9",
+    "description": "Acute myocardial infarction, unspecified"
+  },
+  "I25.10": {
+    "code": "I25.10",
+    "description": "Atherosclerotic heart disease of native coronary artery without angina pectoris"
+  },
+  "I48.91": {
+    "code": "I48.91",
+    "description": "Unspecified atrial fibrillation"
+  },
+  "I63.9": {
+    "code": "I63.9",
+    "description": "Cerebral infarction, unspecified"
+  },
+  "I64": {
+    "code": "I64",
+    "description": "Stroke, not specified as hemorrhage or infarction"
+  },
+  "E11.9": {
+    "code": "E11.9",
+    "description": "Type 2 diabetes mellitus without complications"
+  },
+  "E11.65": {
+    "code": "E11.65",
+    "description": "Type 2 diabetes mellitus with hyperglycemia"
+  },
+  "E11.649": {
+    "code": "E11.649",
+    "description": "Type 2 diabetes mellitus with hypoglycemia without coma"
+  },
+  "E78.5": {
+    "code": "E78.5",
+    "description": "Hyperlipidemia, unspecified"
+  },
+  "E66.9": {
+    "code": "E66.9",
+    "description": "Obesity, unspecified"
+  },
+  "E86.0": {
+    "code": "E86.0",
+    "description": "Dehydration"
+  },
+  "N39.0": {
+    "code": "N39.0",
+    "description": "Urinary tract infection, site not specified"
+  },
+  "N20.0": {
+    "code": "N20.0",
+    "description": "Calculus of kidney (kidney stone)"
+  },
+  "K92.1": {
+    "code": "K92.1",
+    "description": "Melena"
+  },
+  "K57.30": {
+    "code": "K57.30",
+    "description": "Diverticulosis of large intestine without perforation or abscess, without bleeding"
+  },
+  "K35.80": {
+    "code": "K35.80",
+    "description": "Other and unspecified acute appendicitis without abscess"
+  },
+  "M54.5": {
+    "code": "M54.5",
+    "description": "Low back pain"
+  },
+  "M54.2": {
+    "code": "M54.2",
+    "description": "Cervicalgia (neck pain)"
+  },
+  "S72.001A": {
+    "code": "S72.001A",
+    "description": "Fracture of unspecified part of neck of right femur, initial encounter"
+  },
+  "S82.001A": {
+    "code": "S82.001A",
+    "description": "Fracture of upper end of right tibia, initial encounter"
+  },
+  "T14.90": {
+    "code": "T14.90",
+    "description": "Injury, unspecified, initial encounter"
+  },
+  "Z23": {
+    "code": "Z23",
+    "description": "Encounter for immunization"
+  },
+  "Z00.00": {
+    "code": "Z00.00",
+    "description": "Encounter for general adult medical examination without abnormal findings"
+  },
+  "Z12.31": {
+    "code": "Z12.31",
+    "description": "Encounter for screening mammogram for malignant neoplasm of breast"
+  },
+  "Z12.11": {
+    "code": "Z12.11",
+    "description": "Encounter for screening for malignant neoplasm of colon"
+  },
+  "F32.9": {
+    "code": "F32.9",
+    "description": "Major depressive disorder, single episode, unspecified"
+  },
+  "F41.1": {
+    "code": "F41.1",
+    "description": "Generalized anxiety disorder"
+  },
+  "G43.909": {
+    "code": "G43.909",
+    "description": "Migraine, unspecified, not intractable, without status migrainosus"
+  },
+  "G89.29": {
+    "code": "G89.29",
+    "description": "Other chronic pain"
+  },
+  "C34.90": {
+    "code": "C34.90",
+    "description": "Malignant neoplasm of unspecified part of unspecified bronchus or lung"
+  },
+  "C50.919": {
+    "code": "C50.919",
+    "description": "Malignant neoplasm of unspecified site of unspecified female breast"
+  }
+}

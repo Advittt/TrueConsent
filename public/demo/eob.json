@@ -1,0 +1,161 @@
+{
+  "claim": {
+    "kind": "eob",
+    "claimId": "48291",
+    "memberId": "BCB-2204819334",
+    "patientName": "Jane Q. Smith",
+    "insurerName": "BlueCross BlueShield of Illinois",
+    "providerName": "Memorial Hospital Emergency Department",
+    "serviceDate": "2026-06-14",
+    "lines": [
+      {
+        "id": "line-1",
+        "cpt": {
+          "system": "CPT",
+          "code": "99285",
+          "description": "Emergency department visit, high complexity MDM"
+        },
+        "diagnosis": [
+          {
+            "system": "ICD10",
+            "code": "J18.9",
+            "description": "Pneumonia, unspecified organism"
+          }
+        ],
+        "billed": 184700,
+        "insurancePaid": 0,
+        "patientResponsibility": 0,
+        "status": "denied",
+        "denial": {
+          "carc": {
+            "system": "CARC",
+            "code": "CO-50",
+            "description": "Non-covered services because this is not deemed a 'medical necessity' by the payer.",
+            "appealable": true,
+            "successRate": 0.62,
+            "appealNotes": "Frequently overturned when admitting diagnosis clinically supports the service. Cite ACEP/specialty guidelines. ER visits paired with infectious/cardiac/neurologic primary diagnoses are almost always upheld on appeal."
+          },
+          "reason": "Non-covered services because this is not deemed a 'medical necessity' by the payer.",
+          "appealable": true,
+          "recommendedAction": "Frequently overturned when admitting diagnosis clinically supports the service. Cite ACEP/specialty guidelines. ER visits paired with infectious/cardiac/neurologic primary diagnoses are almost always upheld on appeal.",
+          "successRate": 0.62
+        }
+      },
+      {
+        "id": "line-2",
+        "cpt": {
+          "system": "CPT",
+          "code": "71046",
+          "description": "Chest X-ray, 2 views"
+        },
+        "diagnosis": [
+          {
+            "system": "ICD10",
+            "code": "J18.9",
+            "description": "Pneumonia, unspecified organism"
+          }
+        ],
+        "billed": 61200,
+        "insurancePaid": 48900,
+        "patientResponsibility": 7600,
+        "status": "partial"
+      },
+      {
+        "id": "line-3",
+        "cpt": {
+          "system": "CPT",
+          "code": "36415",
+          "description": "Routine venipuncture (blood draw)"
+        },
+        "diagnosis": [
+          {
+            "system": "ICD10",
+            "code": "J18.9",
+            "description": "Pneumonia, unspecified organism"
+          }
+        ],
+        "billed": 4500,
+        "insurancePaid": 3600,
+        "patientResponsibility": 900,
+        "status": "partial"
+      },
+      {
+        "id": "line-4",
+        "hcpcs": {
+          "system": "HCPCS",
+          "code": "J0696",
+          "description": "Injection, ceftriaxone sodium, per 250 mg"
+        },
+        "diagnosis": [
+          {
+            "system": "ICD10",
+            "code": "J18.9",
+            "description": "Pneumonia, unspecified organism"
+          }
+        ],
+        "billed": 28000,
+        "insurancePaid": 0,
+        "patientResponsibility": 0,
+        "status": "denied",
+        "denial": {
+          "carc": {
+            "system": "CARC",
+            "code": "CO-4",
+            "description": "The procedure code is inconsistent with the modifier used or a required modifier is missing.",
+            "appealable": true,
+            "successRate": 0.55,
+            "appealNotes": "Often a coding error by the provider. Request itemized justification and ask the provider to resubmit with corrected modifier rather than appealing directly."
+          },
+          "reason": "The procedure code is inconsistent with the modifier used or a required modifier is missing.",
+          "appealable": true,
+          "recommendedAction": "Often a coding error by the provider. Request itemized justification and ask the provider to resubmit with corrected modifier rather than appealing directly.",
+          "successRate": 0.55
+        }
+      }
+    ],
+    "totals": {
+      "billed": 278400,
+      "insurancePaid": 52500,
+      "patientResponsibility": 8500,
+      "potentialSavings": 212700
+    },
+    "denials": [
+      {
+        "carc": {
+          "system": "CARC",
+          "code": "CO-50",
+          "description": "Non-covered services because this is not deemed a 'medical necessity' by the payer.",
+          "appealable": true,
+          "successRate": 0.62,
+          "appealNotes": "Frequently overturned when admitting diagnosis clinically supports the service. Cite ACEP/specialty guidelines. ER visits paired with infectious/cardiac/neurologic primary diagnoses are almost always upheld on appeal."
+        },
+        "reason": "Non-covered services because this is not deemed a 'medical necessity' by the payer.",
+        "appealable": true,
+        "recommendedAction": "Frequently overturned when admitting diagnosis clinically supports the service. Cite ACEP/specialty guidelines. ER visits paired with infectious/cardiac/neurologic primary diagnoses are almost always upheld on appeal.",
+        "successRate": 0.62
+      },
+      {
+        "carc": {
+          "system": "CARC",
+          "code": "CO-4",
+          "description": "The procedure code is inconsistent with the modifier used or a required modifier is missing.",
+          "appealable": true,
+          "successRate": 0.55,
+          "appealNotes": "Often a coding error by the provider. Request itemized justification and ask the provider to resubmit with corrected modifier rather than appealing directly."
+        },
+        "reason": "The procedure code is inconsistent with the modifier used or a required modifier is missing.",
+        "appealable": true,
+        "recommendedAction": "Often a coding error by the provider. Request itemized justification and ask the provider to resubmit with corrected modifier rather than appealing directly.",
+        "successRate": 0.55
+      }
+    ]
+  },
+  "escalation": {
+    "claimId": "48291",
+    "currentLevel": 0,
+    "steps": [],
+    "authorizationFormSigned": false
+  },
+  "patientFacingSummary": "Your insurer denied $2127 that may be wrongful — you have 2 appealable denials with a strong chance of reversal. We've drafted a ready-to-send appeal letter to help you recover this amount.",
+  "appealLetter": "June 28, 2026\n\nBlueCross BlueShield of Illinois\nAppeals Department\nPO Box 805107\nChicago, IL 60680\n\nRe: Level 1 Internal Appeal — Claim Number 48291\nMember: Jane Q. Smith | Member ID: BCB-2204819334\n\nDear Appeals Department,\n\nI am writing to formally appeal the denial of Claim Number 48291, processed on June 28, 2026, for services rendered at Memorial Hospital Emergency Department on June 14, 2026.\n\nSpecifically, I am appealing the denial of CPT 99285 (Emergency Department Visit, High Complexity Medical Decision Making), billed at $1,847.00, which was denied under reason code CO-50: \"not deemed medically necessary.\" This determination is incorrect.\n\nOn June 14, 2026, I presented to the emergency department with symptoms consistent with pneumonia (admitting diagnosis J18.9 — Pneumonia, unspecified organism). An ED visit of high complexity is precisely what the American College of Emergency Physicians (ACEP) guidelines indicate for a patient presenting with acute infectious pulmonary illness requiring evaluation, imaging (CPT 71046), laboratory workup, and intravenous antibiotic therapy (J0696 — ceftriaxone). These services are inseparable from the ED evaluation and collectively confirm that a high-complexity MDM level was both appropriate and medically necessary.\n\nDenying CPT 99285 while the clinical record clearly documents a serious infectious diagnosis, multi-system workup, and IV antibiotic administration is inconsistent with evidence-based standards of care and your plan's own medical necessity criteria.\n\nI respectfully request that BlueCross BlueShield of Illinois overturn the CO-50 denial for CPT 99285 and reprocess the claim for payment.\n\nPlease respond within 30 days as required by applicable regulations. For questions, I can be reached at jwalinshah13@gmail.com.\n\nSincerely,\nJane Q. Smith\nMember ID: BCB-2204819334"
+}

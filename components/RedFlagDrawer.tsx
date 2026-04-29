@@ -1,11 +1,45 @@
 "use client";
 
 import { useEffect } from "react";
-import type { RedFlag } from "@/lib/types";
+import type { RedFlag, VerifiedRedFlag } from "@/lib/types";
 
 interface RedFlagDrawerProps {
-  flag: RedFlag | null;
+  flag: RedFlag | VerifiedRedFlag | null;
   onClose: () => void;
+}
+
+function verificationLine(f: RedFlag | VerifiedRedFlag) {
+  if (!("verification" in f)) return null;
+  if (f.verification === "verified")
+    return (
+      <div className="verify-line ok">
+        ✓ Verbatim quote located in your document
+        {typeof f.matchOffset === "number"
+          ? ` (char ${f.matchOffset.toLocaleString()})`
+          : ""}
+      </div>
+    );
+  if (f.verification === "fuzzy")
+    return (
+      <div className="verify-line warn">
+        ~ Fuzzy match — {Math.round((f.matchScore ?? 0) * 100)}% of quote tokens
+        appear in the form. Wording may have been paraphrased by the model.
+      </div>
+    );
+  if (f.verification === "unverified")
+    return (
+      <div className="verify-line bad">
+        ! Quote not found in your document — review carefully before relying on
+        this flag.
+      </div>
+    );
+  if (f.verification === "n/a")
+    return (
+      <div className="verify-line muted">
+        Verification unavailable for this file type (text extraction skipped).
+      </div>
+    );
+  return null;
 }
 
 export function RedFlagDrawer({ flag, onClose }: RedFlagDrawerProps) {
@@ -77,22 +111,8 @@ export function RedFlagDrawer({ flag, onClose }: RedFlagDrawerProps) {
               ) : null}
 
               <section className="drawer-section">
-                <div className="drawer-section-title">
-                  Compare alternative locations
-                </div>
-                <div className="map-placeholder">
-                  <div className="map-icon" aria-hidden="true">
-                    🗺
-                  </div>
-                  <div className="map-title">
-                    Find clinics that resolve this concern
-                  </div>
-                  <p style={{ fontSize: 13, marginTop: 4 }}>
-                    See nearby providers whose forms don&apos;t include this
-                    clause — or that offer additional protections.
-                  </p>
-                  <span className="map-soon">Coming soon</span>
-                </div>
+                <div className="drawer-section-title">Source verification</div>
+                {verificationLine(flag)}
               </section>
             </div>
           </>

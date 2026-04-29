@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 
 const inter = Inter({
@@ -9,9 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "TrueConsent — Understand before you sign",
+  title: "TrueConsent — Decode your medical paperwork",
   description:
-    "Upload a medical consent form and get a plain-English summary, key risks, and questions to ask your doctor before signing.",
+    "Upload an EOB or medical consent form. We decode every code, flag wrongful denials, and write your appeal letter.",
 };
 
 export default function RootLayout({
@@ -23,15 +24,19 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <body className="font-sans">
         <header className="topbar">
-          <div className="brand">
+          <Link href="/" className="brand">
             <div className="brand-mark" aria-hidden="true">
               T
             </div>
             <div>
               <div className="brand-name">TrueConsent</div>
-              <span className="brand-tag">Understand before you sign</span>
+              <span className="brand-tag">Decode your medical paperwork</span>
             </div>
-          </div>
+          </Link>
+          <nav className="topnav">
+            <Link href="/">Bills &amp; Appeals</Link>
+            <Link href="/consent">Consent Forms</Link>
+          </nav>
         </header>
         <div className="disclaimer" role="note">
           <span className="disclaimer-icon" aria-hidden="true">

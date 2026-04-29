@@ -1,0 +1,282 @@
+{
+  "CO-1": {
+    "code": "CO-1",
+    "description": "Deductible amount.",
+    "appealable": false,
+    "successRate": 0.0,
+    "appealNotes": "Patient owes per plan deductible. Verify amount against Summary of Benefits."
+  },
+  "CO-2": {
+    "code": "CO-2",
+    "description": "Coinsurance amount.",
+    "appealable": false,
+    "successRate": 0.0,
+    "appealNotes": "Patient owes per plan coinsurance percentage."
+  },
+  "CO-3": {
+    "code": "CO-3",
+    "description": "Co-payment amount.",
+    "appealable": false,
+    "successRate": 0.0,
+    "appealNotes": "Patient owes per plan copay. Verify against plan SBC."
+  },
+  "CO-4": {
+    "code": "CO-4",
+    "description": "Procedure code inconsistent with modifier or required modifier missing.",
+    "appealable": true,
+    "successRate": 0.55,
+    "appealNotes": "Often a provider coding error. Ask provider to resubmit with corrected modifier. Common with modifier 25, 59, or 51."
+  },
+  "CO-5": {
+    "code": "CO-5",
+    "description": "Professional claim submitted on wrong claim form or billed in wrong setting.",
+    "appealable": true,
+    "successRate": 0.5,
+    "appealNotes": "Provider billing error. Contact provider to resubmit on correct form (CMS-1500 vs UB-04)."
+  },
+  "CO-6": {
+    "code": "CO-6",
+    "description": "Duplicate claim or service.",
+    "appealable": true,
+    "successRate": 0.6,
+    "appealNotes": "If service was genuinely provided twice on the same day, ask provider to add modifier 76 (repeat procedure) on resubmission."
+  },
+  "CO-11": {
+    "code": "CO-11",
+    "description": "Diagnosis inconsistent with procedure.",
+    "appealable": true,
+    "successRate": 0.65,
+    "appealNotes": "Common denial worth appealing. Request peer-to-peer review. Your physician should write a letter connecting the diagnosis to the procedure."
+  },
+  "CO-15": {
+    "code": "CO-15",
+    "description": "Authorization/pre-certification not obtained before service.",
+    "appealable": true,
+    "successRate": 0.5,
+    "appealNotes": "If service was an emergency, insurers must cover regardless of PA. Also check if provider failed to obtain PA \u2014 they may owe you a refund."
+  },
+  "CO-16": {
+    "code": "CO-16",
+    "description": "Claim lacks information needed for adjudication.",
+    "appealable": true,
+    "successRate": 0.7,
+    "appealNotes": "Usually a paperwork issue. Contact provider to resubmit with missing information (NPI, date of birth, etc.)."
+  },
+  "CO-18": {
+    "code": "CO-18",
+    "description": "Exact duplicate claim or service.",
+    "appealable": true,
+    "successRate": 0.6,
+    "appealNotes": "If not a true duplicate, supply claim numbers for both and show they are different services."
+  },
+  "CO-19": {
+    "code": "CO-19",
+    "description": "Claim is denied because this is a work-related injury/illness.",
+    "appealable": true,
+    "successRate": 0.4,
+    "appealNotes": "If this is not work-related, provide documentation. Workers comp should only apply if employer confirmed an on-the-job injury."
+  },
+  "CO-22": {
+    "code": "CO-22",
+    "description": "Covered by another plan.",
+    "appealable": true,
+    "successRate": 0.55,
+    "appealNotes": "Coordination of Benefits (COB) issue. Contact insurer to confirm correct primary/secondary plan order."
+  },
+  "CO-23": {
+    "code": "CO-23",
+    "description": "Claim submitted outside the filing deadline.",
+    "appealable": true,
+    "successRate": 0.45,
+    "appealNotes": "Appealable if provider filed late. Provider may be liable \u2014 check your EOB date and provider's submission date."
+  },
+  "CO-26": {
+    "code": "CO-26",
+    "description": "Expenses incurred prior to coverage.",
+    "appealable": false,
+    "successRate": 0.05,
+    "appealNotes": "Service occurred before your effective date. Verify your coverage start date."
+  },
+  "CO-27": {
+    "code": "CO-27",
+    "description": "Expenses incurred after coverage terminated.",
+    "appealable": false,
+    "successRate": 0.05,
+    "appealNotes": "Service occurred after coverage ended. Verify termination date and COBRA eligibility."
+  },
+  "CO-29": {
+    "code": "CO-29",
+    "description": "Patient not eligible on service date.",
+    "appealable": true,
+    "successRate": 0.6,
+    "appealNotes": "Verify your enrollment dates. If error on insurer side, request eligibility correction with HR or insurer."
+  },
+  "CO-45": {
+    "code": "CO-45",
+    "description": "Charge exceeds fee schedule or maximum allowable.",
+    "appealable": false,
+    "successRate": 0.05,
+    "appealNotes": "Contractual write-off between insurer and provider. You should NOT be billed for this amount. If provider balance-bills you, that may violate your plan."
+  },
+  "CO-50": {
+    "code": "CO-50",
+    "description": "Non-covered service \u2014 payer determined service not medically necessary.",
+    "appealable": true,
+    "successRate": 0.62,
+    "appealNotes": "Frequently overturned when admitting diagnosis clinically supports the service. Cite ACEP or specialty guidelines. ER visits for infectious, cardiac, or neurologic diagnoses are almost always upheld. Request peer-to-peer review between your physician and the reviewing physician."
+  },
+  "CO-51": {
+    "code": "CO-51",
+    "description": "Non-covered service \u2014 not deemed a medical necessity by the provider.",
+    "appealable": true,
+    "successRate": 0.5,
+    "appealNotes": "Similar to CO-50. Requires physician letter of medical necessity."
+  },
+  "CO-54": {
+    "code": "CO-54",
+    "description": "Multiple physicians/assistants are not covered in this case.",
+    "appealable": true,
+    "successRate": 0.4,
+    "appealNotes": "If assistant surgeon or co-surgeon was required, physician should document medical necessity of their role."
+  },
+  "CO-55": {
+    "code": "CO-55",
+    "description": "Procedure/treatment deemed experimental or investigational.",
+    "appealable": true,
+    "successRate": 0.45,
+    "appealNotes": "Request full clinical criteria from insurer. If procedure is FDA-approved and guideline-supported, cite published literature and peer guidelines."
+  },
+  "CO-57": {
+    "code": "CO-57",
+    "description": "Payment adjusted because the patient has not met the required eligibility, spend down, or waiting period.",
+    "appealable": true,
+    "successRate": 0.5,
+    "appealNotes": "Verify deductible and waiting period status. If you believe deductible is met, request itemized year-to-date ledger."
+  },
+  "CO-58": {
+    "code": "CO-58",
+    "description": "Treatment was deemed not related to the primary diagnosis.",
+    "appealable": true,
+    "successRate": 0.55,
+    "appealNotes": "Physician should write a letter documenting clinical relationship between diagnosis and treatment."
+  },
+  "CO-59": {
+    "code": "CO-59",
+    "description": "Processed based on multiple surgery rules.",
+    "appealable": true,
+    "successRate": 0.4,
+    "appealNotes": "If procedures were truly independent and not bundled, add modifier 59 (distinct procedural service) on resubmission."
+  },
+  "CO-96": {
+    "code": "CO-96",
+    "description": "Non-covered charge(s). Charges are not covered by this plan.",
+    "appealable": false,
+    "successRate": 0.1,
+    "appealNotes": "Benefit exclusion. Review your plan document to confirm this service is excluded, then explore FSA/HSA coverage."
+  },
+  "CO-97": {
+    "code": "CO-97",
+    "description": "Payment included in another service already adjudicated.",
+    "appealable": true,
+    "successRate": 0.45,
+    "appealNotes": "Check for unbundling violations. If service was distinct, modifier 59 may be appropriate on resubmission."
+  },
+  "CO-109": {
+    "code": "CO-109",
+    "description": "Claim not covered by this payer \u2014 patient may be covered by another plan.",
+    "appealable": true,
+    "successRate": 0.55,
+    "appealNotes": "Coordination of Benefits issue. Confirm primary/secondary plan order with both insurers."
+  },
+  "CO-119": {
+    "code": "CO-119",
+    "description": "Benefit maximum for this time period has been reached.",
+    "appealable": false,
+    "successRate": 0.05,
+    "appealNotes": "Plan maximum reached. Verify against your plan's benefit limits. ACA plans cannot have lifetime maximums for essential health benefits."
+  },
+  "CO-167": {
+    "code": "CO-167",
+    "description": "This (these) diagnosis(es) is (are) not covered.",
+    "appealable": true,
+    "successRate": 0.5,
+    "appealNotes": "Request the specific diagnosis codes payer considers non-covered. If diagnosis is misclassified, ask provider to correct and resubmit."
+  },
+  "CO-197": {
+    "code": "CO-197",
+    "description": "Precertification/authorization/notification absent.",
+    "appealable": true,
+    "successRate": 0.5,
+    "appealNotes": "Appealable if emergency or if PA was actually obtained. Provide PA number from provider records. Insurers must cover emergency services without PA under ACA."
+  },
+  "CO-204": {
+    "code": "CO-204",
+    "description": "Service/equipment/drug is not covered under the patient's current benefit plan.",
+    "appealable": false,
+    "successRate": 0.1,
+    "appealNotes": "Benefit exclusion. Review plan document. Ask prescribing physician about covered alternatives."
+  },
+  "CO-252": {
+    "code": "CO-252",
+    "description": "An attachment or document is required to adjudicate this claim.",
+    "appealable": true,
+    "successRate": 0.75,
+    "appealNotes": "Paperwork issue. Contact provider to submit the required documentation (operative report, records, etc.)."
+  },
+  "OA-18": {
+    "code": "OA-18",
+    "description": "Exact duplicate claim or service.",
+    "appealable": true,
+    "successRate": 0.6,
+    "appealNotes": "Provide documentation showing services are distinct if not a true duplicate."
+  },
+  "OA-23": {
+    "code": "OA-23",
+    "description": "Payment adjusted due to MSP (Medicare Secondary Payer) rules.",
+    "appealable": true,
+    "successRate": 0.45,
+    "appealNotes": "MSP coordination issue. Contact Medicare and your insurer to confirm correct payer order."
+  },
+  "PR-1": {
+    "code": "PR-1",
+    "description": "Deductible amount \u2014 patient responsibility.",
+    "appealable": false,
+    "successRate": 0.0,
+    "appealNotes": "Patient owes. Verify amount against your plan Summary of Benefits and year-to-date deductible tracking."
+  },
+  "PR-2": {
+    "code": "PR-2",
+    "description": "Coinsurance amount \u2014 patient responsibility.",
+    "appealable": false,
+    "successRate": 0.0,
+    "appealNotes": "Patient owes per plan coinsurance percentage after deductible is met."
+  },
+  "PR-3": {
+    "code": "PR-3",
+    "description": "Co-payment amount \u2014 patient responsibility.",
+    "appealable": false,
+    "successRate": 0.0,
+    "appealNotes": "Patient owes copay per plan terms."
+  },
+  "PR-204": {
+    "code": "PR-204",
+    "description": "Service not covered by this payer \u2014 patient responsible.",
+    "appealable": false,
+    "successRate": 0.1,
+    "appealNotes": "If you believe this is covered, request the specific exclusion language from your plan document."
+  },
+  "CO-29": {
+    "code": "CO-29",
+    "description": "The time limit for filing has expired.",
+    "appealable": true,
+    "successRate": 0.35,
+    "appealNotes": "Appealable if you can document the claim was submitted on time or that a delay was caused by circumstances beyond your control (e.g., coordination of benefits dispute, provider billing error). Request proof of timely filing from your provider."
+  },
+  "CO-100": {
+    "code": "CO-100",
+    "description": "Payment adjusted because the benefit for this service/claim is not covered when performed by this type of provider, in this type of facility, or by this type of practitioner.",
+    "appealable": true,
+    "successRate": 0.48,
+    "appealNotes": "For out-of-network emergency services, appeal citing state/federal surprise billing protections and the No Surprises Act. Emergency care must be covered at in-network cost-sharing rates regardless of network status."
+  }
+}
