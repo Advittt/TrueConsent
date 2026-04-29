@@ -1,0 +1,334 @@
+{
+  "99281": {
+    "code": "99281",
+    "description": "Emergency department visit, minor (self-limited problem)"
+  },
+  "99282": {
+    "code": "99282",
+    "description": "Emergency department visit, low complexity"
+  },
+  "99283": {
+    "code": "99283",
+    "description": "Emergency department visit, moderate complexity"
+  },
+  "99284": {
+    "code": "99284",
+    "description": "Emergency department visit, moderately high complexity"
+  },
+  "99285": {
+    "code": "99285",
+    "description": "Emergency department visit, high medical decision complexity"
+  },
+  "99201": {
+    "code": "99201",
+    "description": "Office visit, new patient, minimal problem"
+  },
+  "99202": {
+    "code": "99202",
+    "description": "Office visit, new patient, straightforward"
+  },
+  "99203": {
+    "code": "99203",
+    "description": "Office visit, new patient, low complexity"
+  },
+  "99204": {
+    "code": "99204",
+    "description": "Office visit, new patient, moderate complexity"
+  },
+  "99205": {
+    "code": "99205",
+    "description": "Office visit, new patient, high complexity"
+  },
+  "99211": {
+    "code": "99211",
+    "description": "Office visit, established patient, minimal"
+  },
+  "99212": {
+    "code": "99212",
+    "description": "Office visit, established patient, straightforward"
+  },
+  "99213": {
+    "code": "99213",
+    "description": "Office visit, established patient, low complexity"
+  },
+  "99214": {
+    "code": "99214",
+    "description": "Office visit, established patient, moderate complexity"
+  },
+  "99215": {
+    "code": "99215",
+    "description": "Office visit, established patient, high complexity"
+  },
+  "99221": {
+    "code": "99221",
+    "description": "Initial hospital inpatient care, straightforward"
+  },
+  "99222": {
+    "code": "99222",
+    "description": "Initial hospital inpatient care, moderate complexity"
+  },
+  "99223": {
+    "code": "99223",
+    "description": "Initial hospital inpatient care, high complexity"
+  },
+  "99231": {
+    "code": "99231",
+    "description": "Subsequent hospital care, straightforward"
+  },
+  "99232": {
+    "code": "99232",
+    "description": "Subsequent hospital care, moderate complexity"
+  },
+  "99233": {
+    "code": "99233",
+    "description": "Subsequent hospital care, high complexity"
+  },
+  "99238": {
+    "code": "99238",
+    "description": "Hospital discharge, 30 minutes or less"
+  },
+  "99239": {
+    "code": "99239",
+    "description": "Hospital discharge, more than 30 minutes"
+  },
+  "99291": {
+    "code": "99291",
+    "description": "Critical care, first 30-74 minutes"
+  },
+  "99292": {
+    "code": "99292",
+    "description": "Critical care, each additional 30 minutes"
+  },
+  "99385": {
+    "code": "99385",
+    "description": "Preventive visit, new patient, adult 18-39"
+  },
+  "99386": {
+    "code": "99386",
+    "description": "Preventive visit, new patient, adult 40-64"
+  },
+  "99395": {
+    "code": "99395",
+    "description": "Preventive visit, established patient, adult 18-39"
+  },
+  "99396": {
+    "code": "99396",
+    "description": "Preventive visit, established patient, adult 40-64"
+  },
+  "71045": {
+    "code": "71045",
+    "description": "Chest X-ray, single view"
+  },
+  "71046": {
+    "code": "71046",
+    "description": "Chest X-ray, 2 views"
+  },
+  "71047": {
+    "code": "71047",
+    "description": "Chest X-ray, 3 views"
+  },
+  "70450": {
+    "code": "70450",
+    "description": "CT head/brain without contrast"
+  },
+  "70470": {
+    "code": "70470",
+    "description": "CT head/brain without and with contrast"
+  },
+  "70553": {
+    "code": "70553",
+    "description": "MRI brain with and without contrast"
+  },
+  "70551": {
+    "code": "70551",
+    "description": "MRI brain without contrast"
+  },
+  "72148": {
+    "code": "72148",
+    "description": "MRI lumbar spine without contrast"
+  },
+  "72141": {
+    "code": "72141",
+    "description": "MRI cervical spine without contrast"
+  },
+  "73721": {
+    "code": "73721",
+    "description": "MRI any joint of lower extremity without contrast"
+  },
+  "73221": {
+    "code": "73221",
+    "description": "MRI any joint of upper extremity without contrast"
+  },
+  "74177": {
+    "code": "74177",
+    "description": "CT abdomen and pelvis with contrast"
+  },
+  "74178": {
+    "code": "74178",
+    "description": "CT abdomen and pelvis without and with contrast"
+  },
+  "93000": {
+    "code": "93000",
+    "description": "Electrocardiogram (ECG/EKG), complete with interpretation"
+  },
+  "93306": {
+    "code": "93306",
+    "description": "Echocardiography with Doppler and color flow"
+  },
+  "85025": {
+    "code": "85025",
+    "description": "Complete blood count (CBC) with differential"
+  },
+  "85027": {
+    "code": "85027",
+    "description": "Complete blood count (CBC) without differential"
+  },
+  "80053": {
+    "code": "80053",
+    "description": "Comprehensive metabolic panel (CMP)"
+  },
+  "80048": {
+    "code": "80048",
+    "description": "Basic metabolic panel (BMP)"
+  },
+  "82947": {
+    "code": "82947",
+    "description": "Glucose, quantitative, blood"
+  },
+  "82565": {
+    "code": "82565",
+    "description": "Creatinine, serum"
+  },
+  "84443": {
+    "code": "84443",
+    "description": "Thyroid stimulating hormone (TSH)"
+  },
+  "83036": {
+    "code": "83036",
+    "description": "Hemoglobin A1c (HbA1c)"
+  },
+  "87804": {
+    "code": "87804",
+    "description": "Influenza A/B rapid antigen test"
+  },
+  "87426": {
+    "code": "87426",
+    "description": "COVID-19 antigen detection"
+  },
+  "87880": {
+    "code": "87880",
+    "description": "Strep A rapid antigen detection"
+  },
+  "36415": {
+    "code": "36415",
+    "description": "Venipuncture, routine blood draw"
+  },
+  "36430": {
+    "code": "36430",
+    "description": "Blood transfusion, each unit"
+  },
+  "96365": {
+    "code": "96365",
+    "description": "IV infusion, therapeutic, initial up to 1 hour"
+  },
+  "96366": {
+    "code": "96366",
+    "description": "IV infusion, therapeutic, each additional hour"
+  },
+  "96374": {
+    "code": "96374",
+    "description": "IV push, single or initial substance"
+  },
+  "96375": {
+    "code": "96375",
+    "description": "IV push, each additional substance"
+  },
+  "94640": {
+    "code": "94640",
+    "description": "Nebulizer treatment (pressurized inhalation)"
+  },
+  "94761": {
+    "code": "94761",
+    "description": "Pulse oximetry, multiple determinations"
+  },
+  "90471": {
+    "code": "90471",
+    "description": "Immunization administration, first injection"
+  },
+  "90472": {
+    "code": "90472",
+    "description": "Immunization administration, each additional injection"
+  },
+  "90686": {
+    "code": "90686",
+    "description": "Influenza vaccine, quadrivalent"
+  },
+  "27447": {
+    "code": "27447",
+    "description": "Total knee replacement (TKA)"
+  },
+  "27130": {
+    "code": "27130",
+    "description": "Total hip replacement (THA)"
+  },
+  "29881": {
+    "code": "29881",
+    "description": "Knee arthroscopy with meniscectomy"
+  },
+  "29827": {
+    "code": "29827",
+    "description": "Arthroscopy, shoulder, rotator cuff repair"
+  },
+  "43239": {
+    "code": "43239",
+    "description": "Upper GI endoscopy (EGD) with biopsy"
+  },
+  "45378": {
+    "code": "45378",
+    "description": "Colonoscopy, diagnostic"
+  },
+  "45380": {
+    "code": "45380",
+    "description": "Colonoscopy with biopsy"
+  },
+  "45385": {
+    "code": "45385",
+    "description": "Colonoscopy with polypectomy"
+  },
+  "47562": {
+    "code": "47562",
+    "description": "Laparoscopic cholecystectomy (gallbladder removal)"
+  },
+  "49505": {
+    "code": "49505",
+    "description": "Inguinal hernia repair, initial"
+  },
+  "10060": {
+    "code": "10060",
+    "description": "Incision and drainage of abscess, simple"
+  },
+  "12001": {
+    "code": "12001",
+    "description": "Simple wound repair, 2.5 cm or less"
+  },
+  "90792": {
+    "code": "90792",
+    "description": "Psychiatric diagnostic evaluation with medical services"
+  },
+  "90834": {
+    "code": "90834",
+    "description": "Individual psychotherapy, 45 minutes"
+  },
+  "90837": {
+    "code": "90837",
+    "description": "Individual psychotherapy, 60 minutes"
+  },
+  "73100": {
+    "code": "73100",
+    "description": "Radiologic exam, wrist; 2 views"
+  },
+  "25600": {
+    "code": "25600",
+    "description": "Closed treatment of distal radial fracture, without manipulation"
+  }
+}
