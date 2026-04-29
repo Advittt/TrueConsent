@@ -65,6 +65,45 @@ export function ClaimResults({ data, onReset }: ClaimResultsProps) {
   const [callError, setCallError] = useState<string | null>(null);
   const [calling, setCalling] = useState(false);
   const [showPipeline, setShowPipeline] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+
+  function buildVoiceSummary(): string {
+    const appealable = claim.denials.filter((d) => d.appealable);
+    const savings = (totals.potentialSavings / 100).toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+    const insurer = claim.insurerName ?? "your insurance company";
+    const lines: string[] = [];
+
+    lines.push(`Here's what we found on your claim from ${insurer}.`);
+
+    if (appealable.length > 0) {
+      lines.push(`You have ${appealable.length} denied service${appealable.length > 1 ? "s" : ""} worth ${savings} that we believe ${appealable.length > 1 ? "are" : "is"} wrongfully denied.`);
+      for (const d of appealable) {
+        const rate = d.successRate ? Math.round(d.successRate * 100) : null;
+        lines.push(`Denial code ${d.carc.code}: ${d.reason}${rate ? ` — ${rate} percent of people who appeal this win.` : ""}`);
+      }
+      lines.push(`We recommend filing a Level 1 internal appeal. Your appeal letter is ready.`);
+    } else {
+      lines.push(`No appealable denials were found. Your patient responsibility is ${(totals.patientResponsibility / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })}.`);
+    }
+
+    return lines.join(" ");
+  }
+
+  function handleSpeak() {
+    if (!("speechSynthesis" in window)) return;
+    if (speaking) {
+      window.speechSynthesis.cancel();
+      setSpeaking(false);
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(buildVoiceSummary());
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
+    utterance.onend = () => setSpeaking(false);
+    utterance.onerror = () => setSpeaking(false);
+    setSpeaking(true);
+    window.speechSynthesis.speak(utterance);
+  }
 
   async function handleAuthorize(signedAt: string) {
     setShowAuth(false);
@@ -168,9 +207,19 @@ export function ClaimResults({ data, onReset }: ClaimResultsProps) {
             </span>
           ) : null}
         </div>
-        <button type="button" className="claim-reset-btn" onClick={onReset}>
-          Upload another EOB
-        </button>
+        <div className="claim-header-actions">
+          <button
+            type="button"
+            className={`listen-btn${speaking ? " listen-btn--active" : ""}`}
+            onClick={handleSpeak}
+            title={speaking ? "Stop" : "Listen to summary"}
+          >
+            {speaking ? "◼ Stop" : "🔊 Listen"}
+          </button>
+          <button type="button" className="claim-reset-btn" onClick={onReset}>
+            Upload another EOB
+          </button>
+        </div>
       </div>
 
       {/* Hero savings banner */}

@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import Link from "next/link";
+import { DM_Sans, DM_Serif_Display, DM_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
+
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans" });
+const dmSerif = DM_Serif_Display({ weight: "400", subsets: ["latin"], variable: "--font-dm-serif" });
+const dmMono = DM_Mono({ weight: ["400", "500"], subsets: ["latin"], variable: "--font-dm-mono" });
 
 export const metadata: Metadata = {
   title: "TrueConsent — Decode your medical paperwork",
@@ -21,34 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="font-sans">
-        <header className="topbar">
-          <Link href="/" className="brand">
-            <div className="brand-mark" aria-hidden="true">
-              T
-            </div>
-            <div>
-              <div className="brand-name">TrueConsent</div>
-              <span className="brand-tag">Decode your medical paperwork</span>
-            </div>
-          </Link>
-          <nav className="topnav">
-            <Link href="/">Bills &amp; Appeals</Link>
-            <Link href="/consent">Consent Forms</Link>
-          </nav>
-        </header>
-        <div className="disclaimer" role="note">
-          <span className="disclaimer-icon" aria-hidden="true">
-            ⓘ
-          </span>
-          <span>
-            TrueConsent does not provide medical, legal, or financial advice.
-            Always confirm with your provider.
-          </span>
-        </div>
-        <main className="shell">{children}</main>
-      </body>
+    <html lang="en" className={`${dmSans.variable} ${dmSerif.variable} ${dmMono.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }

@@ -1,5 +1,65 @@
-// Shared contract — all 4 tracks code against these types.
-// DO NOT modify without coordinating across tracks.
+// ─── Handoff UI types ─────────────────────────────────────────────────────────
+
+export type DenialStrength = 'strong' | 'moderate' | 'weak' | 'paid';
+
+export interface DenialItem {
+  id: string;
+  cpt: string;
+  description: string;
+  icd10: string;
+  icd10Label: string;
+  billed: number;
+  paid: number;
+  denied: number;
+  carc: string | null;
+  carcLabel: string | null;
+  ourAnalysis: string | null;
+  policyRef: string | null;
+  confidence: number | null;
+  strength: DenialStrength;
+}
+
+export interface ClaimResult {
+  patient: string;
+  memberId: string;
+  insurer: string;
+  claimNumber: string;
+  dateOfService: string;
+  provider: string;
+  totalBilled: number;
+  totalAllowed: number;
+  totalPaid: number;
+  totalDenied: number;
+  denials: DenialItem[];
+}
+
+export interface AppealLetter {
+  claimId: string;
+  content: string;
+  citations: string[];
+  grounds: number;
+  winRate: number;
+}
+
+export type CallStatus = 'initiating' | 'connecting' | 'active' | 'complete' | 'failed';
+
+export interface TranscriptLine {
+  speaker: 'ai' | 'bcbs' | 'system';
+  text: string;
+  timestamp: number;
+}
+
+export interface CallState {
+  callId: string;
+  status: CallStatus;
+  durationMs: number;
+  transcript: TranscriptLine[];
+  referenceNumber?: string;
+}
+
+export type AppStep = 'upload' | 'analyze' | 'results' | 'appeal' | 'call';
+
+// ─── Legacy API types (used by existing API routes) ───────────────────────────
 
 export type DocumentKind =
   | "eob"
@@ -16,29 +76,14 @@ export interface DecodedCode {
   system: CodeSystem;
   code: string;
   description: string;
-  // CARC/RARC only:
   appealable?: boolean;
-  successRate?: number; // 0..1, historical overturn rate for this denial reason
+  successRate?: number;
   appealNotes?: string;
 }
 
-export interface ClaimLine {
-  id: string;
-  cpt?: DecodedCode;
-  hcpcs?: DecodedCode;
-  modifiers?: DecodedCode[];
-  diagnosis?: DecodedCode[]; // ICD-10
-  billed: number; // cents
-  insurancePaid: number; // cents
-  patientResponsibility: number; // cents
-  status: "paid" | "denied" | "partial" | "pending";
-  denial?: DenialItem;
-  flags?: LineFlag[]; // upcoding, duplicate, etc.
-}
-
-export interface DenialItem {
-  carc: DecodedCode; // claim adjustment reason code
-  rarc?: DecodedCode; // remark code
+export interface ClaimLineDenial {
+  carc: DecodedCode;
+  rarc?: DecodedCode;
   reason: string;
   appealable: boolean;
   recommendedAction: string;
@@ -52,6 +97,20 @@ export type LineFlag =
   | { kind: "modifier_mismatch"; explanation: string }
   | { kind: "diagnosis_mismatch"; explanation: string };
 
+export interface ClaimLine {
+  id: string;
+  cpt?: DecodedCode;
+  hcpcs?: DecodedCode;
+  modifiers?: DecodedCode[];
+  diagnosis?: DecodedCode[];
+  billed: number;
+  insurancePaid: number;
+  patientResponsibility: number;
+  status: "paid" | "denied" | "partial" | "pending";
+  denial?: ClaimLineDenial;
+  flags?: LineFlag[];
+}
+
 export interface DecodedClaim {
   kind: DocumentKind;
   extractionMethod?: "regex" | "llm" | "failed";
@@ -61,34 +120,28 @@ export interface DecodedClaim {
   insurerName?: string;
   insurerPhone?: string;
   providerName?: string;
-  serviceDate?: string; // ISO
-  receivedDate?: string; // ISO
+  serviceDate?: string;
+  receivedDate?: string;
   lines: ClaimLine[];
   totals: {
     billed: number;
     insurancePaid: number;
     patientResponsibility: number;
-    potentialSavings: number; // sum of appealable denials
+    potentialSavings: number;
   };
-  denials: DenialItem[];
-  rawText?: string; // for citation/grounding
+  denials: ClaimLineDenial[];
+  rawText?: string;
 }
-
-// Track B — Appeals + Escalation
 
 export type EscalationLevel = 0 | 1 | 2 | 3 | 4;
 
 export interface EscalationStep {
   level: EscalationLevel;
-  name: string; // e.g. "Internal phone review"
+  name: string;
   description: string;
-  deadline?: string; // ISO
+  deadline?: string;
   status: "pending" | "in_progress" | "complete" | "skipped";
-  artifacts?: {
-    letterUrl?: string;
-    formUrl?: string;
-    callRef?: string;
-  };
+  artifacts?: { letterUrl?: string; formUrl?: string; callRef?: string };
   successRateEstimate?: number;
 }
 
@@ -99,7 +152,11 @@ export interface EscalationPlan {
   authorizationFormSigned: boolean;
 }
 
-// Track C — Call
+export interface ApiTranscriptLine {
+  t: number;
+  role: "system" | "agent" | "rep";
+  text: string;
+}
 
 export interface CallSession {
   id: string;
@@ -110,17 +167,10 @@ export interface CallSession {
   startedAt: string;
   endedAt?: string;
   referenceNumber?: string;
-  transcript: TranscriptLine[];
+  transcript: ApiTranscriptLine[];
   recordingUrl?: string;
 }
 
-export interface TranscriptLine {
-  t: number; // seconds from call start
-  role: "system" | "agent" | "rep";
-  text: string;
-}
-
-// API response shape — Track D consumes this.
 export interface AnalyzeClaimResponse {
   claim: DecodedClaim;
   escalation: EscalationPlan;

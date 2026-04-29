@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes spin        { to { transform: rotate(360deg); } }
+@keyframes pulse       { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
+@keyframes blink       { 0%,100%{opacity:1} 50%{opacity:0} }
+@keyframes bounce      { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+@keyframes fadeSlideUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
 :root {
   --bg: #f8fafc;
   --surface: #ffffff;
@@ -1097,6 +1103,31 @@ button.browse-link {
   transition: background 150ms ease;
 }
 .claim-reset-btn:hover { background: #f1f5f9; }
+
+.claim-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.listen-btn {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--primary);
+  padding: 8px 14px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+.listen-btn:hover { background: var(--primary-tint); border-color: var(--primary); }
+.listen-btn--active {
+  background: var(--primary-tint);
+  border-color: var(--primary);
+  color: var(--primary-strong);
+}
 
 .failed-extraction-card {
   background: var(--surface);

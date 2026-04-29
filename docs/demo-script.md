@@ -107,9 +107,11 @@
 
 ## Sponsor Stack (30 sec)
 
-> "The tech stack: **TokenRouter** routes every LLM call through their proxy — we can swap models without touching code, and we get unified logging across the whole pipeline. **Lightsprint** tracked every feature from EOB decode to the call flow. **Reboot** gave us the Claude Code skills framework — it's why we were able to ship a production-quality product in a single hackathon session."
+> "The tech stack: **TokenRouter** routes every LLM call through their proxy — we can swap models without touching code, and we get unified logging across the whole pipeline. **Lightsprint** tracked every feature from EOB decode to the call flow. **Reboot** skills are integrated into our Claude Code setup — the `reboot-chat-app` skill is wired in and available for the next phase of the build."
 
 > "We used Claude claude-opus-4.7 for the LLM extraction fallback and for generating the appeal letters. The deterministic layer — code lookup, reconciliation, denial scoring — runs locally with zero AI involvement."
+
+> *Note for demo: Reboot is configured in `.claude/settings.json`. It's live in the repo — we'll invoke it in the next build session for the voice and escalation features.*
 
 ---
 
