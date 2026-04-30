@@ -29,7 +29,7 @@ export function CallStep({
   claimNumber,
   patientName,
   appealAmount,
-  pollInterval = 2000,
+  pollInterval = 1000,
 }: Props) {
   const [call, setCall]     = useState<CallState>({
     callId,
