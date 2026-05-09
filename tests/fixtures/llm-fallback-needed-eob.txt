@@ -1,0 +1,15 @@
+EXPLANATION OF BENEFITS
+Cigna Health Plan
+Member Name: Jane Q. Smith
+Member ID: CIG-2204819334
+Claim Number: 48293
+Date of Service: June 14, 2026
+Provider: Memorial Hospital Emergency Department
+
+SERVICE LINES
+1 06/14/2026 99285 ER visit high complexity $1847.00 $0.00 $0.00 $0.00 CO-50
+
+CLAIM TOTALS
+Total Billed: $1847.00
+Total Insurance Paid: $0.00
+Total Patient Responsibility: $0.00
