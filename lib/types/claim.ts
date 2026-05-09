@@ -31,6 +31,7 @@ export interface ClaimResult {
   totalPaid: number;
   totalDenied: number;
   denials: DenialItem[];
+  documentFlags?: ClaimDocumentFlag[];
 }
 
 export interface AppealLetter {
@@ -95,7 +96,11 @@ export type LineFlag =
   | { kind: "duplicate"; explanation: string }
   | { kind: "unbundling"; explanation: string }
   | { kind: "modifier_mismatch"; explanation: string }
-  | { kind: "diagnosis_mismatch"; explanation: string };
+  | { kind: "diagnosis_mismatch"; explanation: string }
+  | { kind: "arithmetic"; explanation: string };
+
+/** Claim-level findings from deterministic rules (not tied to a single line). */
+export type ClaimDocumentFlag = { kind: "totals_mismatch"; explanation: string };
 
 export interface ClaimLine {
   id: string;
@@ -114,6 +119,8 @@ export interface ClaimLine {
 export interface DecodedClaim {
   kind: DocumentKind;
   extractionMethod?: "regex" | "llm" | "failed";
+  /** Deterministic billing / consistency checks after decode. */
+  documentFlags?: ClaimDocumentFlag[];
   claimId?: string;
   memberId?: string;
   patientName?: string;
@@ -171,9 +178,32 @@ export interface CallSession {
   recordingUrl?: string;
 }
 
+export type ExtractionAuditSource =
+  | "regex"
+  | "llm-fallback"
+  | "demo-llm-fallback"
+  | "failed";
+
+/** How text became structured claim data — for trust UI and reconciliation. */
+export interface ExtractionAudit {
+  source: ExtractionAuditSource;
+  confidence: "high" | "medium" | "low";
+  rejectedCodes: string[];
+  reconciliationOk: boolean;
+  verifiedCodes: string[];
+  statedTotals: Pick<
+    DecodedClaim["totals"],
+    "billed" | "insurancePaid" | "patientResponsibility"
+  >;
+  recomputedTotals: DecodedClaim["totals"];
+  citations?: { label: string; text: string }[];
+}
+
 export interface AnalyzeClaimResponse {
   claim: DecodedClaim;
   escalation: EscalationPlan;
   patientFacingSummary: string;
   appealLetter: string;
+  /** Present when produced by `analyzeClaimFromUpload` / API; client may synthesize via `fallbackExtractionAudit`. */
+  extraction?: ExtractionAudit;
 }

@@ -2,6 +2,12 @@
 
 import { useState } from 'react';
 import type { AppStep, ClaimResult, AppealLetter, AnalyzeClaimResponse } from '@/lib/types/claim';
+import { mapAnalyzeResponseToClaimResult } from '@/lib/map-claim-ui';
+import { UploadStep } from '@/components/claim/UploadStep';
+import { AnalyzeStep } from '@/components/claim/AnalyzeStep';
+import { ResultsStep } from '@/components/claim/ResultsStep';
+import { AppealStep } from '@/components/claim/AppealStep';
+import { CallStep } from '@/components/claim/CallStep';
 
 // ── Demo data injected for the sample flow ───────────────────────────────────
 const SAMPLE_CLAIM: ClaimResult = {
@@ -129,46 +135,6 @@ Sarah Mitchell
 Member ID: BCBS-2024-9842`,
 };
 
-// ── Transform old AnalyzeClaimResponse → new ClaimResult ─────────────────────
-function mapApiResponse(data: AnalyzeClaimResponse): ClaimResult {
-  const c = data.claim;
-  return {
-    patient:       c.patientName   ?? 'Patient',
-    memberId:      c.memberId      ?? '—',
-    insurer:       c.insurerName   ?? 'Insurer',
-    claimNumber:   c.claimId       ?? '—',
-    dateOfService: c.serviceDate   ?? '—',
-    provider:      c.providerName  ?? '—',
-    totalBilled:   c.totals.billed,
-    totalAllowed:  c.totals.billed - c.totals.potentialSavings,
-    totalPaid:     c.totals.insurancePaid,
-    totalDenied:   c.totals.potentialSavings,
-    denials: c.lines
-      .filter(l => l.denial)
-      .map((l, i) => ({
-        id:          l.id,
-        cpt:         l.cpt?.code     ?? `Line ${i + 1}`,
-        description: l.cpt?.description ?? 'Service',
-        icd10:       l.diagnosis?.[0]?.code  ?? '—',
-        icd10Label:  l.diagnosis?.[0]?.description ?? '—',
-        billed:      l.billed,
-        paid:        l.insurancePaid,
-        denied:      l.billed - l.insurancePaid,
-        carc:        l.denial?.carc.code   ?? null,
-        carcLabel:   l.denial?.carc.description ?? null,
-        ourAnalysis: l.denial?.reason ?? null,
-        policyRef:   null,
-        confidence:  l.denial?.successRate != null ? Math.round(l.denial.successRate * 100) : null,
-        strength:    (l.denial?.appealable ? 'strong' : 'weak') as 'strong' | 'weak',
-      })),
-  };
-}
-import { UploadStep }  from '@/components/claim/UploadStep';
-import { AnalyzeStep } from '@/components/claim/AnalyzeStep';
-import { ResultsStep } from '@/components/claim/ResultsStep';
-import { AppealStep }  from '@/components/claim/AppealStep';
-import { CallStep }    from '@/components/claim/CallStep';
-
 const NAV_STEPS = [
   { id: 'results', label: 'Results'      },
   { id: 'appeal',  label: 'Appeal Letter' },
@@ -237,7 +203,7 @@ export default function Home() {
       body.append('action', 'decode');
       const res  = await fetch('/api/analyze-claim', { method: 'POST', body });
       const raw  = await res.json() as AnalyzeClaimResponse;
-      setClaim(mapApiResponse(raw));
+      setClaim(mapAnalyzeResponseToClaimResult(raw));
     } catch (err) {
       console.error('analyze-claim failed', err);
     }

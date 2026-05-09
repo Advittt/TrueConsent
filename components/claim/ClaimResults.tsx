@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { AnalyzeClaimResponse } from "@/lib/types/claim";
+import type { AnalyzeClaimResponse, ExtractionAudit } from "@/lib/types/claim";
+import { fallbackExtractionAudit } from "@/lib/extraction-audit";
 import { formatMoney } from "@/lib/format-money";
 import { SavingsBanner } from "./SavingsBanner";
 import { ClaimTable } from "./ClaimTable";
@@ -10,20 +11,6 @@ import { AuthModal } from "./AuthModal";
 import { CallModal } from "./CallModal";
 
 // The real backend sends appealLetter as an extra key beyond the typed shape.
-type ExtractionAudit = {
-  source?: "regex" | "llm-fallback" | "demo-llm-fallback" | "failed";
-  confidence?: "high" | "medium" | "low";
-  rejectedCodes?: string[];
-  reconciliationOk?: boolean;
-  verifiedCodes?: string[];
-  statedTotals?: {
-    billed: number;
-    insurancePaid: number;
-    patientResponsibility: number;
-  };
-  recomputedTotals?: AnalyzeClaimResponse["claim"]["totals"];
-  citations?: { label: string; text: string }[];
-};
 type ClaimResponseWithLetter = AnalyzeClaimResponse & {
   appealLetter?: string;
   extraction?: ExtractionAudit;
@@ -358,7 +345,7 @@ export function ClaimResults({ data, onReset }: ClaimResultsProps) {
 
 function VerificationTrace({ data }: { data: ClaimResponseWithLetter }) {
   const { claim } = data;
-  const audit = data.extraction ?? buildAuditFromClaim(data);
+  const audit = data.extraction ?? fallbackExtractionAudit(data.claim);
   const rejectedCodes = audit.rejectedCodes ?? [];
   const recomputedTotals = audit.recomputedTotals ?? claim.totals;
   const statedTotals = audit.statedTotals ?? {
@@ -566,28 +553,6 @@ function VerificationTrace({ data }: { data: ClaimResponseWithLetter }) {
   );
 }
 
-function buildAuditFromClaim(data: AnalyzeClaimResponse): ExtractionAudit {
-  const verifiedCodes = new Set<string>();
-  for (const line of data.claim.lines) {
-    if (line.cpt) verifiedCodes.add(`CPT ${line.cpt.code}`);
-    if (line.hcpcs) verifiedCodes.add(`HCPCS ${line.hcpcs.code}`);
-    for (const diagnosis of line.diagnosis ?? []) verifiedCodes.add(`ICD-10 ${diagnosis.code}`);
-    if (line.denial) verifiedCodes.add(`CARC ${line.denial.carc.code}`);
-  }
-  return {
-    source: "regex",
-    confidence: "high",
-    rejectedCodes: [],
-    reconciliationOk: true,
-    verifiedCodes: [...verifiedCodes],
-    statedTotals: {
-      billed: data.claim.totals.billed,
-      insurancePaid: data.claim.totals.insurancePaid,
-      patientResponsibility: data.claim.totals.patientResponsibility,
-    },
-    recomputedTotals: data.claim.totals,
-  };
-}
 
 /** Derive a readable appeal letter from the claim data. */
 function buildAppealLetter(data: AnalyzeClaimResponse): string {
