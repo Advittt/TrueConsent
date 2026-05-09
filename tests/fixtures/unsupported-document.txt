@@ -1,0 +1,3 @@
+This is a household budget note, not an explanation of benefits.
+Groceries: apples, bread, coffee.
+No claim lines, medical procedure codes, member identifiers, or payer reason codes are present.

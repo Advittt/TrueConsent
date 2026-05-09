@@ -35,6 +35,16 @@ interface ClaimResultsProps {
 }
 
 export function ClaimResults({ data, onReset }: ClaimResultsProps) {
+  // Call flow state
+  const [showAuth, setShowAuth] = useState(false);
+  const [callSession, setCallSession] = useState<{
+    callId: string; phone: string; insurerName: string; demo: boolean;
+  } | null>(null);
+  const [callError, setCallError] = useState<string | null>(null);
+  const [calling, setCalling] = useState(false);
+  const [showPipeline, setShowPipeline] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+
   if (!data?.claim) {
     return (
       <div>
@@ -56,16 +66,6 @@ export function ClaimResults({ data, onReset }: ClaimResultsProps) {
   const hasAppealable = claim.denials.some((d) => d.appealable);
   const extractionFailed =
     claim.extractionMethod === "failed" || claim.kind === "unknown" || claim.lines.length === 0;
-
-  // Call flow state
-  const [showAuth, setShowAuth] = useState(false);
-  const [callSession, setCallSession] = useState<{
-    callId: string; phone: string; insurerName: string; demo: boolean;
-  } | null>(null);
-  const [callError, setCallError] = useState<string | null>(null);
-  const [calling, setCalling] = useState(false);
-  const [showPipeline, setShowPipeline] = useState(false);
-  const [speaking, setSpeaking] = useState(false);
 
   function buildVoiceSummary(): string {
     const appealable = claim.denials.filter((d) => d.appealable);
