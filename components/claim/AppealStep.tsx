@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { AppealLetter } from '@/lib/types/claim';
+import { useNarrow } from '@/lib/use-narrow';
 
 interface Props {
   appeal: AppealLetter;
@@ -15,6 +16,7 @@ export function AppealStep({ appeal, insurerName, onCall }: Props) {
   const [generating, setGen]    = useState(true);
   const [copied, setCopied]     = useState(false);
   const scrollRef               = useRef<HTMLDivElement>(null);
+  const narrow                  = useNarrow(720);
 
   useEffect(() => {
     const allLines = (appeal.content ?? '').split('\n');
@@ -62,7 +64,7 @@ export function AppealStep({ appeal, insurerName, onCall }: Props) {
 
   return (
     <div style={S.page}>
-      <div style={S.layout}>
+      <div style={{ ...S.layout, gridTemplateColumns: narrow ? '1fr' : '260px 1fr' }}>
         {/* Sidebar */}
         <div style={S.sidebar}>
           <div style={S.card}>

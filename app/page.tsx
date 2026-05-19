@@ -15,6 +15,7 @@ import { AnalyzeStep } from '@/components/claim/AnalyzeStep';
 import { ResultsStep } from '@/components/claim/ResultsStep';
 import { AppealStep }  from '@/components/claim/AppealStep';
 import { CallStep }    from '@/components/claim/CallStep';
+import { useNarrow }   from '@/lib/use-narrow';
 
 const NAV_STEPS = [
   { id: 'results', label: 'Results'      },
@@ -22,17 +23,17 @@ const NAV_STEPS = [
   { id: 'call',    label: 'Call Insurer'  },
 ] as const;
 
-function NavStepper({ step, setStep }: { step: AppStep; setStep: (s: AppStep) => void }) {
+function NavStepper({ step, setStep, narrow }: { step: AppStep; setStep: (s: AppStep) => void; narrow: boolean }) {
   const idx = NAV_STEPS.findIndex(s => s.id === step);
   return (
-    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, flex:1 }}>
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, flex:1, minWidth:0 }}>
       {NAV_STEPS.map((s, i) => {
         const done   = i < idx;
         const active = s.id === step;
         return (
           <div key={s.id} style={{ display:'flex', alignItems:'center', gap:6 }}>
             {i > 0 && (
-              <div style={{ width:44, height:2, borderRadius:999, background: done ? 'oklch(0.25 0.15 268)' : 'oklch(0.87 0.02 268)', transition:'background 0.3s' }} />
+              <div style={{ width: narrow ? 20 : 44, height:2, borderRadius:999, background: done ? 'oklch(0.25 0.15 268)' : 'oklch(0.87 0.02 268)', transition:'background 0.3s' }} />
             )}
             <div
               style={{ width:24, height:24, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', transition:'all 0.2s', background: active||done ? 'oklch(0.25 0.15 268)' : '#fff', border:`2px solid ${active||done ? 'oklch(0.25 0.15 268)' : 'oklch(0.82 0.03 268)'}`, boxShadow: active ? '0 0 0 3px oklch(0.25 0.15 268 / 0.15)' : 'none', cursor: done||active ? 'pointer' : 'default' }}
@@ -43,9 +44,11 @@ function NavStepper({ step, setStep }: { step: AppStep; setStep: (s: AppStep) =>
                 : <span style={{ color: active ? '#fff' : 'oklch(0.65 0.05 268)', fontSize:10, fontWeight:700 }}>{i+1}</span>
               }
             </div>
-            <span style={{ fontSize:13, whiteSpace:'nowrap', color: active ? 'oklch(0.25 0.15 268)' : done ? 'oklch(0.5 0.05 268)' : 'oklch(0.70 0.03 268)', fontWeight: active ? 600 : 400, transition:'all 0.2s' }}>
-              {s.label}
-            </span>
+            {!narrow && (
+              <span style={{ fontSize:13, whiteSpace:'nowrap', color: active ? 'oklch(0.25 0.15 268)' : done ? 'oklch(0.5 0.05 268)' : 'oklch(0.70 0.03 268)', fontWeight: active ? 600 : 400, transition:'all 0.2s' }}>
+                {s.label}
+              </span>
+            )}
           </div>
         );
       })}
@@ -57,6 +60,7 @@ export default function Home() {
   const [step,   setStep]   = useState<AppStep>('upload');
   const [claim,  setClaim]  = useState<ClaimResult | null>(null);
   const [appeal, setAppeal] = useState<AppealLetter | null>(null);
+  const narrow              = useNarrow(720);
 
   const showNav = !['upload', 'analyze'].includes(step);
 
@@ -70,24 +74,24 @@ export default function Home() {
 
       {/* Nav */}
       <nav style={{ background:'#F8F7F4', borderBottom:'1px solid oklch(0.90 0.02 268 / 0.7)', position:'sticky', top:0, zIndex:100, backdropFilter:'blur(12px)' }}>
-        <div style={{ maxWidth:1100, margin:'0 auto', padding:'0 24px', height:58, display:'flex', alignItems:'center', gap:20 }}>
+        <div style={{ maxWidth:1100, margin:'0 auto', padding:'0 16px', height:58, display:'flex', alignItems:'center', gap: narrow ? 10 : 20 }}>
           <div style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', flexShrink:0 }} onClick={() => setStep('upload')}>
             <div style={{ width:32, height:32, borderRadius:8, background:'oklch(0.25 0.15 268)', color:'#fff', fontWeight:800, fontSize:12, display:'flex', alignItems:'center', justifyContent:'center' }}>TC</div>
-            <span style={{ fontFamily:'"DM Serif Display",Georgia,serif', fontSize:18, color:'oklch(0.18 0.02 250)' }}>TrueConsent</span>
-            <span style={{ fontSize:10, fontWeight:600, background:'oklch(0.35 0.15 268 / 0.1)', color:'oklch(0.35 0.15 268)', borderRadius:999, padding:'2px 7px' }}>beta</span>
+            {!narrow && <span style={{ fontFamily:'"DM Serif Display",Georgia,serif', fontSize:18, color:'oklch(0.18 0.02 250)' }}>TrueConsent</span>}
+            {!narrow && <span style={{ fontSize:10, fontWeight:600, background:'oklch(0.35 0.15 268 / 0.1)', color:'oklch(0.35 0.15 268)', borderRadius:999, padding:'2px 7px' }}>beta</span>}
           </div>
 
-          {showNav && claim && <NavStepper step={step} setStep={setStep} />}
+          {showNav && claim && <NavStepper step={step} setStep={setStep} narrow={narrow} />}
 
-          <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:12 }}>
+          <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:8 }}>
             {showNav && (
-              <button style={{ fontSize:13, color:'oklch(0.55 0.05 268)', background:'none', border:'none', cursor:'pointer' }} onClick={() => setStep('upload')}>
-                ← New claim
+              <button style={{ fontSize:13, color:'oklch(0.55 0.05 268)', background:'none', border:'none', cursor:'pointer', padding: narrow ? '4px 6px' : '4px 8px' }} onClick={() => setStep('upload')}>
+                {narrow ? '←' : '← New claim'}
               </button>
             )}
-            <div style={{ display:'flex', alignItems:'center', fontSize:12, fontWeight:600, borderRadius:999, padding:'5px 12px', background: step==='call' ? 'oklch(0.52 0.14 142 / 0.1)' : 'oklch(0.35 0.15 268 / 0.08)', color: step==='call' ? 'oklch(0.42 0.12 142)' : 'oklch(0.35 0.15 268)' }}>
-              <span style={{ width:6, height:6, borderRadius:'50%', background:'currentColor', display:'inline-block', marginRight:6, opacity:0.8 }} />
-              {step === 'call' ? 'Call live' : 'Demo mode'}
+            <div style={{ display:'flex', alignItems:'center', fontSize:12, fontWeight:600, borderRadius:999, padding: narrow ? '5px 8px' : '5px 12px', background: step==='call' ? 'oklch(0.52 0.14 142 / 0.1)' : 'oklch(0.35 0.15 268 / 0.08)', color: step==='call' ? 'oklch(0.42 0.12 142)' : 'oklch(0.35 0.15 268)' }}>
+              <span style={{ width:6, height:6, borderRadius:'50%', background:'currentColor', display:'inline-block', marginRight: narrow ? 0 : 6, opacity:0.8 }} />
+              {!narrow && (step === 'call' ? 'Call live' : 'Demo mode')}
             </div>
           </div>
         </div>

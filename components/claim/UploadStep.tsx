@@ -1,10 +1,13 @@
 'use client';
 
+import { useNarrow } from '@/lib/use-narrow';
+
 interface Props {
   onStart: () => void;
 }
 
 export function UploadStep({ onStart }: Props) {
+  const narrow = useNarrow(600);
   return (
     <div style={S.page}>
       <div style={S.hero}>
@@ -34,7 +37,7 @@ export function UploadStep({ onStart }: Props) {
         </div>
       </div>
 
-      <div style={S.statsRow}>
+      <div style={{ ...S.statsRow, gridTemplateColumns: narrow ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)' }}>
         {[
           { n: '1 in 5',  l: 'claims denied by insurers' },
           { n: '70%',     l: '"not medically necessary" denials overturned on appeal' },

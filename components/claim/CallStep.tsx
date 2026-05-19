@@ -3,6 +3,7 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import type { ClaimResult, TranscriptLine } from '@/lib/types/claim';
 import { formatMoney } from '@/lib/format-money';
+import { useNarrow } from '@/lib/use-narrow';
 
 interface Props {
   claim: ClaimResult;
@@ -30,6 +31,7 @@ export function CallStep({
   const [visibleCount, setVisibleCount] = useState(0);
   const [wonBadge,     setWon]          = useState(false);
   const transcriptRef                   = useRef<HTMLDivElement>(null);
+  const narrow                          = useNarrow(720);
 
   useEffect(() => {
     let cancelled = false;
@@ -75,7 +77,7 @@ export function CallStep({
 
   return (
     <div style={S.page}>
-      <div style={S.layout}>
+      <div style={{ ...S.layout, gridTemplateColumns: narrow ? '1fr' : '320px 1fr' }}>
 
         {/* Phone card */}
         <div style={S.phone}>

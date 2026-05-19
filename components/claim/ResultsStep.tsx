@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { ClaimResult, DenialStrength } from '@/lib/types/claim';
 import { formatMoney as fmt } from '@/lib/format-money';
+import { useNarrow } from '@/lib/use-narrow';
 
 interface Props {
   claim: ClaimResult;
@@ -26,6 +27,7 @@ export function ResultsStep({ claim, onAppeal }: Props) {
   const [expanded, setExpanded] = useState<string | null>(claim.denials?.[0]?.id ?? null);
   const [visible, setVisible]   = useState(false);
   useEffect(() => { setTimeout(() => setVisible(true), 80); }, []);
+  const narrow = useNarrow(600);
 
   const activeDenials = claim.denials.filter(d => d.strength !== 'paid');
   const paidItems     = claim.denials.filter(d => d.strength === 'paid');
@@ -105,7 +107,7 @@ export function ResultsStep({ claim, onAppeal }: Props) {
 
           {expanded === d.id && (
             <div style={S.body} onClick={e => e.stopPropagation()}>
-              <div style={S.codesRow}>
+              <div style={{ ...S.codesRow, gridTemplateColumns: narrow ? '1fr' : 'repeat(3,1fr)' }}>
                 {[
                   { l: 'CPT Code',      v: d.cpt,   desc: d.description },
                   { l: 'ICD-10',        v: d.icd10, desc: d.icd10Label },
