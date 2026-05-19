@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import type { AppStep, ClaimResult, AppealLetter } from '@/lib/types/claim';
 import {
   SAMPLE_CLAIM,
@@ -83,16 +84,24 @@ export default function Home() {
 
           {showNav && claim && <NavStepper step={step} setStep={setStep} narrow={narrow} />}
 
-          <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:8 }}>
+          <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap: narrow ? 6 : 10 }}>
             {showNav && (
               <button style={{ fontSize:13, color:'oklch(0.55 0.05 268)', background:'none', border:'none', cursor:'pointer', padding: narrow ? '4px 6px' : '4px 8px' }} onClick={() => setStep('upload')}>
                 {narrow ? '←' : '← New claim'}
               </button>
             )}
-            <div style={{ display:'flex', alignItems:'center', fontSize:12, fontWeight:600, borderRadius:999, padding: narrow ? '5px 8px' : '5px 12px', background: step==='call' ? 'oklch(0.52 0.14 142 / 0.1)' : 'oklch(0.35 0.15 268 / 0.08)', color: step==='call' ? 'oklch(0.42 0.12 142)' : 'oklch(0.35 0.15 268)' }}>
-              <span style={{ width:6, height:6, borderRadius:'50%', background:'currentColor', display:'inline-block', marginRight: narrow ? 0 : 6, opacity:0.8 }} />
-              {!narrow && (step === 'call' ? 'Call live' : 'Demo mode')}
-            </div>
+            {!narrow && (
+              <div style={{ display:'flex', alignItems:'center', fontSize:12, fontWeight:600, borderRadius:999, padding:'5px 12px', background: step==='call' ? 'oklch(0.52 0.14 142 / 0.1)' : 'oklch(0.35 0.15 268 / 0.08)', color: step==='call' ? 'oklch(0.42 0.12 142)' : 'oklch(0.35 0.15 268)' }}>
+                <span style={{ width:6, height:6, borderRadius:'50%', background:'currentColor', display:'inline-block', marginRight:6, opacity:0.8 }} />
+                {step === 'call' ? 'Call live' : 'Demo mode'}
+              </div>
+            )}
+            <Link
+              href="/waitlist"
+              style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:13, fontWeight:600, color:'#fff', background:'oklch(0.25 0.15 268)', textDecoration:'none', borderRadius:999, padding: narrow ? '7px 12px' : '8px 16px', letterSpacing:'-0.005em', boxShadow:'0 4px 12px oklch(0.25 0.15 268 / 0.18)', transition:'all 0.15s' }}
+            >
+              {narrow ? 'Join →' : 'Join waitlist  →'}
+            </Link>
           </div>
         </div>
       </nav>

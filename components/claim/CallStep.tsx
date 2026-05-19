@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { memo, useEffect, useRef, useState } from 'react';
 import type { ClaimResult, TranscriptLine } from '@/lib/types/claim';
 import { formatMoney } from '@/lib/format-money';
@@ -170,6 +171,22 @@ export function CallStep({
           </div>
         </div>
       )}
+
+      {/* Waitlist CTA — appears after the win moment */}
+      {wonBadge && (
+        <div style={{ ...S.postCta, animation: 'fadeSlideUp 0.6s ease-out 0.3s both' }}>
+          <div style={S.postCtaLeft}>
+            <div style={S.postCtaEye}>That was Sarah&apos;s claim.</div>
+            <div style={S.postCtaTitle}>Make it happen for yours.</div>
+            <div style={S.postCtaSub}>
+              We&apos;re onboarding people one denial at a time. Drop your email and we&apos;ll reach out when a slot opens that fits your situation.
+            </div>
+          </div>
+          <Link href="/waitlist" style={S.postCtaBtn}>
+            Join the waitlist  →
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
@@ -249,4 +266,11 @@ const S: Record<string, React.CSSProperties> = {
   winStat:   { padding:'14px 20px', textAlign:'center', borderRight:'1px solid oklch(1 0 0 / 0.1)' },
   winStatN:  { fontFamily:'"DM Serif Display",Georgia,serif', fontSize:22, color:'#fff' },
   winStatL:  { fontSize:11, color:'oklch(0.85 0.07 142)', textTransform:'uppercase', letterSpacing:'0.06em', marginTop:2 },
+
+  postCta:      { marginTop:16, background:'#fff', border:'1px solid oklch(0.91 0.02 268)', borderRadius:20, padding:'28px 32px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:24, flexWrap:'wrap', boxShadow:'0 8px 24px oklch(0.25 0.15 268 / 0.04)' },
+  postCtaLeft:  { flex:'1 1 320px' },
+  postCtaEye:   { fontFamily:'"DM Mono",monospace', fontSize:11, letterSpacing:'0.08em', textTransform:'uppercase', color:'oklch(0.55 0.05 268)', marginBottom:8 },
+  postCtaTitle: { fontFamily:'"DM Serif Display",Georgia,serif', fontSize:24, color:'oklch(0.18 0.02 250)', fontWeight:400, marginBottom:8, letterSpacing:'-0.015em' },
+  postCtaSub:   { fontSize:14, color:'oklch(0.45 0.02 250)', lineHeight:1.6, maxWidth:480 },
+  postCtaBtn:   { background:'oklch(0.25 0.15 268)', color:'#fff', textDecoration:'none', borderRadius:12, padding:'14px 24px', fontSize:14, fontWeight:700, whiteSpace:'nowrap', boxShadow:'0 8px 20px oklch(0.25 0.15 268 / 0.22)', letterSpacing:'-0.005em', transition:'transform 0.15s' },
 };

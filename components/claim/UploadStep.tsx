@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useNarrow } from '@/lib/use-narrow';
 
 interface Props {
@@ -26,6 +27,11 @@ export function UploadStep({ onStart }: Props) {
           <span style={S.ctaTitle}>Watch the demo</span>
           <span style={S.ctaSub}>See how Sarah recovered $3,847 from BCBS in 25 seconds</span>
         </button>
+
+        <Link href="/waitlist" style={S.secondaryCta}>
+          <span style={S.secondaryCtaMuted}>Have a denial of your own?</span>
+          <span style={S.secondaryCtaStrong}>Join the waitlist →</span>
+        </Link>
 
         <div style={S.trustRow}>
           {['HIPAA compliant', '256-bit encryption', 'Files deleted after 24h'].map((t) => (
@@ -64,6 +70,9 @@ const S: Record<string, React.CSSProperties> = {
   cta:        { background:'oklch(0.25 0.15 268)', color:'#fff', border:'none', borderRadius:16, padding:'20px 36px', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:6, transition:'all 0.15s', boxShadow:'0 10px 30px oklch(0.25 0.15 268 / 0.25)' },
   ctaTitle:   { fontSize:18, fontWeight:700, letterSpacing:'-0.01em' },
   ctaSub:     { fontSize:13, color:'oklch(0.85 0.07 268)', fontWeight:500 },
+  secondaryCta:      { display:'inline-flex', alignItems:'center', gap:8, marginTop:18, fontSize:14, textDecoration:'none', padding:'8px 4px', transition:'transform 0.15s' },
+  secondaryCtaMuted: { color:'oklch(0.55 0.05 268)' },
+  secondaryCtaStrong:{ color:'oklch(0.25 0.15 268)', fontWeight:600, borderBottom:'1px solid oklch(0.25 0.15 268 / 0.3)', paddingBottom:1 },
   trustRow:   { display:'flex', gap:24, marginTop:28, flexWrap:'wrap', justifyContent:'center' },
   trustItem:  { display:'flex', alignItems:'center', gap:6, fontSize:13, color:'oklch(0.55 0.05 268)' },
   trustDot:   { width:6, height:6, borderRadius:'50%', background:'oklch(0.52 0.14 142)', display:'inline-block' },
