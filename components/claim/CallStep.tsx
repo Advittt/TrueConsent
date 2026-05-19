@@ -2,20 +2,22 @@
 // components/claim/CallStep.tsx
 
 import { useEffect, useRef, useState } from 'react';
-import type { CallState, TranscriptLine } from '@/lib/types/claim';
+import type { TranscriptLine } from '@/lib/types/claim';
 
 interface Props {
-  callId: string;
   insurerName: string;
   insurerPhone: string;
   claimNumber: string;
   patientName: string;
   appealAmount: number;
-  pollInterval?: number;
+  transcript: TranscriptLine[];
+  durationMs: number;
+  referenceNumber: string;
+  tickMs?: number;
 }
 
 const fmt = (n: number) =>
-  `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  `$${(n / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const fmtTime = (ms: number) => {
   const s = Math.floor(ms / 1000);
@@ -23,65 +25,53 @@ const fmtTime = (ms: number) => {
 };
 
 export function CallStep({
-  callId,
   insurerName,
   insurerPhone,
   claimNumber,
   patientName,
   appealAmount,
-  pollInterval = 1000,
+  transcript,
+  durationMs,
+  referenceNumber,
+  tickMs = 100,
 }: Props) {
-  const [call, setCall]     = useState<CallState>({
-    callId,
-    status: 'initiating',
-    durationMs: 0,
-    transcript: [],
-  });
-  const [wonBadge, setWon]  = useState(false);
-  const transcriptRef       = useRef<HTMLDivElement>(null);
-  const tickRef             = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [elapsedMs, setElapsedMs] = useState(0);
+  const [wonBadge,  setWon]       = useState(false);
+  const transcriptRef             = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const poll = async () => {
-      try {
-        const res = await fetch(`/api/call-status?callId=${callId}`);
-        if (!res.ok) return;
-        const raw = await res.json();
-        // API returns `transcripts` with `role` field; normalize to `transcript` with `speaker`
-        const rawLines = raw.transcript ?? raw.transcripts ?? [];
-        const data: CallState = {
-          callId:          raw.callId ?? callId,
-          status:          raw.status ?? 'dialing',
-          durationMs:      raw.durationMs ?? 0,
-          transcript:      rawLines.map((l: { role?: string; speaker?: string; text?: string; t?: number }) => ({
-            t:       l.t ?? 0,
-            speaker: l.speaker ?? (l.role === 'agent' ? 'ai' : l.role === 'rep' ? 'Rep' : 'system'),
-            text:    l.text ?? '',
-          })),
-          referenceNumber: raw.referenceNumber,
-        };
-        setCall(data);
-        if (data.status === 'complete' || data.status === 'failed') {
-          if (tickRef.current) clearInterval(tickRef.current);
-          if (data.status === 'complete') setTimeout(() => setWon(true), 600);
-        }
-      } catch {
-        // network error — keep polling
-      }
-    };
+    let cancelled = false;
+    let elapsed   = 0;
+    let winTimer: ReturnType<typeof setTimeout> | null = null;
 
-    poll();
-    tickRef.current = setInterval(poll, pollInterval);
-    return () => { if (tickRef.current) clearInterval(tickRef.current); };
-  }, [callId, pollInterval]);
+    const id = setInterval(() => {
+      if (cancelled) return;
+      elapsed += tickMs;
+      if (elapsed >= durationMs) {
+        elapsed = durationMs;
+        clearInterval(id);
+        setElapsedMs(elapsed);
+        winTimer = setTimeout(() => { if (!cancelled) setWon(true); }, 600);
+        return;
+      }
+      setElapsedMs(elapsed);
+    }, tickMs);
+
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+      if (winTimer) clearTimeout(winTimer);
+    };
+  }, [durationMs, tickMs]);
+
+  const visibleTranscript = transcript.filter(l => l.t * 1000 <= elapsedMs);
+  const callDone          = elapsedMs >= durationMs;
+  const progress          = Math.min(elapsedMs / durationMs, 1);
 
   useEffect(() => {
     if (transcriptRef.current)
       transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
-  }, [call.transcript]);
-
-  const callDone = call.status === 'complete' || call.status === 'failed';
-  const progress = Math.min(call.durationMs / 54000, 1);
+  }, [visibleTranscript.length]);
 
   return (
     <div style={S.page}>
@@ -103,7 +93,7 @@ export function CallStep({
           </div>
 
           <div style={S.timerWrap}>
-            <div style={S.timer}>{fmtTime(call.durationMs)}</div>
+            <div style={S.timer}>{fmtTime(elapsedMs)}</div>
             <div style={S.timerLabel}>{callDone ? 'Total duration' : 'Elapsed'}</div>
           </div>
 
@@ -111,7 +101,7 @@ export function CallStep({
             <div style={{ ...S.bar, width: `${progress * 100}%` }} />
           </div>
 
-          {!callDone && <WaveForm durationMs={call.durationMs} />}
+          {!callDone && <WaveForm elapsedMs={elapsedMs} />}
 
           <div style={S.refGrid}>
             <div style={S.refItem}>
@@ -122,10 +112,10 @@ export function CallStep({
               <div style={S.refL}>Member</div>
               <div style={S.refV}>{patientName}</div>
             </div>
-            {call.referenceNumber && (
+            {callDone && (
               <div style={S.refItem}>
                 <div style={S.refL}>Call Ref</div>
-                <div style={{ ...S.refV, color: 'oklch(0.52 0.14 142)' }}>{call.referenceNumber}</div>
+                <div style={{ ...S.refV, color: 'oklch(0.52 0.14 142)' }}>{referenceNumber}</div>
               </div>
             )}
           </div>
@@ -138,10 +128,10 @@ export function CallStep({
             <span style={S.tSub}>AI-generated · Real-time</span>
           </div>
           <div style={S.tBody} ref={transcriptRef}>
-            {call.transcript.map((line, i) => (
+            {visibleTranscript.map((line, i) => (
               <TranscriptItem key={i} line={line} />
             ))}
-            {!callDone && call.transcript.length > 0 && (
+            {!callDone && visibleTranscript.length > 0 && (
               <div style={S.typing}>
                 {[0, 1, 2].map(i => (
                   <span key={i} style={{ ...S.typDot, animationDelay: `${i * 0.15}s` }} />
@@ -160,7 +150,7 @@ export function CallStep({
             <div>
               <div style={S.winTitle}>Appeal filed successfully</div>
               <div style={S.winSub}>
-                Reference {call.referenceNumber} · {insurerName} must respond within 30 days · Amount: {fmt(appealAmount)}
+                Reference {referenceNumber} · {insurerName} must respond within 30 days · Amount: {fmt(appealAmount)}
               </div>
             </div>
           </div>
@@ -200,13 +190,13 @@ function TranscriptItem({ line }: { line: TranscriptLine }) {
   );
 }
 
-function WaveForm({ durationMs }: { durationMs: number }) {
+function WaveForm({ elapsedMs }: { elapsedMs: number }) {
   return (
     <div style={S.wave}>
       {Array.from({ length: 12 }, (_, i) => (
         <div key={i} style={{
           ...S.waveBar,
-          height: `${10 + Math.sin(durationMs / 200 + i * 0.7) * 14 + 14}px`,
+          height: `${10 + Math.sin(elapsedMs / 200 + i * 0.7) * 14 + 14}px`,
         }} />
       ))}
     </div>

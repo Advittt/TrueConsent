@@ -1,5 +1,7 @@
 # TrueConsent
 
+> **This is the `demo` branch — a fully mocked, clickthrough version of the app for public hosting. No API keys, no backend, no env vars. Every visitor sees the same canned Sarah Mitchell flow. The `main` branch has the real implementation described below.**
+
 > You leave the hospital. A bill arrives. It's full of codes nobody explained to you. Most people just pay it.
 >
 > TrueConsent reads your EOB, decodes every code, finds what's wrong, and handles the fight — including making the call to your insurance company.
@@ -175,38 +177,22 @@ Every flag shown in the UI displays its verification status (`✓ verbatim`, `~ 
 
 ---
 
-## Running locally
+## Running locally (demo branch)
 
 ```bash
-cp .env.example .env.local       # add your TokenRouter API key
 npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3000` and click **Watch the demo**. No API keys, no `.env.local`, no backend — the full clickthrough runs on hardcoded data in `lib/demo-data.ts`.
 
-**Demo mode (no API key required):**
-
-```
-http://localhost:3000/?demo=surgery
-```
-
-Loads a pre-cached analysis of the surgery mock — full decoded result, verification panel, all UI — zero API dependency. Use this as your fallback during any live demo.
-
-### Environment variables
+To produce a static build for hosting:
 
 ```bash
-# Required for live uploads
-tokenrouter=your_tokenrouter_key
-
-# Optional
-TOKENROUTER_MODEL=anthropic/claude-opus-4.7   # default
-TOKENROUTER_BASE_URL=https://api.tokenrouter.com
-
-# Required for call feature
-BLAND_API_KEY=your_bland_key
-NEXT_PUBLIC_BASE_URL=https://your-deploy-url.vercel.app
+npm run build
 ```
+
+Output lands in `out/` — drop it on any static CDN (Vercel, Netlify, Cloudflare Pages, S3).
 
 ---
 

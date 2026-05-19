@@ -1,168 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import type { AppStep, ClaimResult, AppealLetter, AnalyzeClaimResponse } from '@/lib/types/claim';
-
-// ── Demo data injected for the sample flow ───────────────────────────────────
-const SAMPLE_CLAIM: ClaimResult = {
-  patient:       'Sarah Mitchell',
-  memberId:      'BCBS-2024-9842',
-  insurer:       'Blue Cross Blue Shield',
-  claimNumber:   'CLM-2024-77291',
-  dateOfService: 'Sep 12, 2024',
-  provider:      'Valley Surgical Center',
-  totalBilled:   12847_00,
-  totalAllowed:   9003_00,
-  totalPaid:      9000_00,
-  totalDenied:    3847_00,
-  denials: [
-    {
-      id:          'd1',
-      cpt:         '47562',
-      description: 'Laparoscopic cholecystectomy',
-      icd10:       'K80.20',
-      icd10Label:  'Calculus of gallbladder without cholecystitis',
-      billed:      8200_00,
-      paid:        5800_00,
-      denied:      2400_00,
-      carc:        'CO-97',
-      carcLabel:   'Bundled/included in payment for another service',
-      ourAnalysis: 'BCBS applied CO-97 claiming the cholecystectomy is bundled with the pre-op visit (CPT 99213). This is incorrect — NCCI edits explicitly allow separate billing when the pre-op evaluation occurs more than 24 hours before surgery. Date gap confirmed: 3 days.',
-      policyRef:   'NCCI Policy Manual Ch. 1, §D.6',
-      confidence:  87,
-      strength:    'strong',
-    },
-    {
-      id:          'd2',
-      cpt:         'Z01.810',
-      description: 'Pre-operative EKG examination',
-      icd10:       'Z01.810',
-      icd10Label:  'Encounter for preprocedural cardiovascular exam',
-      billed:      1447_00,
-      paid:        0,
-      denied:      1447_00,
-      carc:        'CO-4',
-      carcLabel:   'Service/procedure inconsistent with patient\'s age/sex/diagnosis',
-      ourAnalysis: 'Insurer flagged EKG as inconsistent with a 34-year-old patient. AHA guidelines explicitly recommend pre-op EKG for patients with history of cardiac symptoms regardless of age. Medical record shows palpitation notation from 2023.',
-      policyRef:   'AHA 2022 Perioperative Guidelines §3.1',
-      confidence:  74,
-      strength:    'moderate',
-    },
-    {
-      id:          'd3',
-      cpt:         '99213',
-      description: 'Office/outpatient visit, established patient',
-      icd10:       'K80.20',
-      icd10Label:  'Calculus of gallbladder without cholecystitis',
-      billed:      500_00,
-      paid:        500_00,
-      denied:      0,
-      carc:        null,
-      carcLabel:   null,
-      ourAnalysis: null,
-      policyRef:   null,
-      confidence:  null,
-      strength:    'paid',
-    },
-  ],
-};
-
-const SAMPLE_APPEAL: AppealLetter = {
-  claimId:   'CLM-2024-77291',
-  winRate:   82,
-  grounds:   2,
-  citations: ['NCCI Policy Manual Ch. 1 §D.6', 'AHA 2022 Perioperative Guidelines §3.1', '45 CFR §147.136', 'CMS-1500 Claim Form Instructions Rev. 2023'],
-  content: `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-FORMAL APPEAL — INSURANCE CLAIM DENIAL
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Date:    ${new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })}
-RE:      Claim #CLM-2024-77291 — Denial Appeal
-Member:  Sarah Mitchell · BCBS-2024-9842
-
-Dear Blue Cross Blue Shield Appeals Department,
-
-I am writing to formally appeal the denial of claim #CLM-2024-77291
-for services rendered on September 12, 2024 at Valley Surgical Center.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-GROUND 1: CO-97 BUNDLING DENIAL IS INCORRECT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-BCBS applied adjustment code CO-97, claiming CPT 47562
-(laparoscopic cholecystectomy, $2,400.00) is bundled with the
-pre-operative visit (CPT 99213, billed separately on Sep 9).
-
-This is incorrect. Per NCCI Policy Manual Chapter 1, Section D.6,
-separate billing is explicitly permitted when the pre-operative
-evaluation occurs more than 24 hours before the surgical procedure.
-The pre-op visit was conducted 3 days prior (Sep 9 vs Sep 12).
-
-Request: Reprocess CPT 47562 at allowed rate. Expected: $2,400.00.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-GROUND 2: CO-4 DENIAL OF PRE-OP EKG IS INCORRECT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-BCBS denied CPT Z01.810 (pre-operative EKG, $1,447.00) citing CO-4,
-claiming the service is inconsistent with the patient's age/diagnosis.
-
-AHA 2022 Perioperative Cardiovascular Evaluation Guidelines (§3.1)
-explicitly recommend pre-operative EKG for patients with a documented
-history of cardiac symptoms, regardless of age. Ms. Mitchell's chart
-notes palpitation complaints recorded in October 2023.
-
-The denial therefore lacks clinical basis and conflicts with accepted
-national practice standards.
-
-Request: Reprocess Z01.810 at allowed rate. Expected: $1,447.00.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-TOTAL AMOUNT IN DISPUTE: $3,847.00
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Under 45 CFR §147.136, I request a response within 60 days.
-Please confirm receipt of this appeal and provide a case reference number.
-
-Sincerely,
-Sarah Mitchell
-Member ID: BCBS-2024-9842`,
-};
-
-// ── Transform old AnalyzeClaimResponse → new ClaimResult ─────────────────────
-function mapApiResponse(data: AnalyzeClaimResponse): ClaimResult {
-  const c = data.claim;
-  return {
-    patient:       c.patientName   ?? 'Patient',
-    memberId:      c.memberId      ?? '—',
-    insurer:       c.insurerName   ?? 'Insurer',
-    claimNumber:   c.claimId       ?? '—',
-    dateOfService: c.serviceDate   ?? '—',
-    provider:      c.providerName  ?? '—',
-    totalBilled:   c.totals.billed,
-    totalAllowed:  c.totals.billed - c.totals.potentialSavings,
-    totalPaid:     c.totals.insurancePaid,
-    totalDenied:   c.totals.potentialSavings,
-    denials: c.lines
-      .filter(l => l.denial)
-      .map((l, i) => ({
-        id:          l.id,
-        cpt:         l.cpt?.code     ?? `Line ${i + 1}`,
-        description: l.cpt?.description ?? 'Service',
-        icd10:       l.diagnosis?.[0]?.code  ?? '—',
-        icd10Label:  l.diagnosis?.[0]?.description ?? '—',
-        billed:      l.billed,
-        paid:        l.insurancePaid,
-        denied:      l.billed - l.insurancePaid,
-        carc:        l.denial?.carc.code   ?? null,
-        carcLabel:   l.denial?.carc.description ?? null,
-        ourAnalysis: l.denial?.reason ?? null,
-        policyRef:   null,
-        confidence:  l.denial?.successRate != null ? Math.round(l.denial.successRate * 100) : null,
-        strength:    (l.denial?.appealable ? 'strong' : 'weak') as 'strong' | 'weak',
-      })),
-  };
-}
+import type { AppStep, ClaimResult, AppealLetter } from '@/lib/types/claim';
+import {
+  SAMPLE_CLAIM,
+  SAMPLE_APPEAL,
+  DEMO_TRANSCRIPT,
+  DEMO_CALL_DURATION_MS,
+  DEMO_CALL_REFERENCE,
+} from '@/lib/demo-data';
 import { UploadStep }  from '@/components/claim/UploadStep';
 import { AnalyzeStep } from '@/components/claim/AnalyzeStep';
 import { ResultsStep } from '@/components/claim/ResultsStep';
@@ -207,77 +53,16 @@ function NavStepper({ step, setStep }: { step: AppStep; setStep: (s: AppStep) =>
 }
 
 export default function Home() {
-  const [step,      setStep]      = useState<AppStep>('upload');
-  const [fileName,  setFileName]  = useState<string>('EOB_document.pdf');
-  const [claim,     setClaim]     = useState<ClaimResult | null>(null);
-  const [appeal,    setAppeal]    = useState<AppealLetter | null>(null);
-  const [callId,    setCallId]    = useState<string | null>(null);
-  const [isSample,  setIsSample]  = useState(false);
+  const [step,   setStep]   = useState<AppStep>('upload');
+  const [claim,  setClaim]  = useState<ClaimResult | null>(null);
+  const [appeal, setAppeal] = useState<AppealLetter | null>(null);
 
   const showNav = !['upload', 'analyze'].includes(step);
 
-  const handleUpload = async (file: File | 'sample') => {
-    if (file === 'sample') {
-      setIsSample(true);
-    } else {
-      setIsSample(false);
-      setFileName(file.name);
-    }
-    setStep('analyze');
-  };
-
-  const handleAnalyzeDone = async () => {
-    if (isSample) {
-      setClaim(SAMPLE_CLAIM);
-      setStep('results');
-      return;
-    }
-    try {
-      const body = new FormData();
-      body.append('action', 'decode');
-      const res  = await fetch('/api/analyze-claim', { method: 'POST', body });
-      const raw  = await res.json() as AnalyzeClaimResponse;
-      setClaim(mapApiResponse(raw));
-    } catch (err) {
-      console.error('analyze-claim failed', err);
-    }
-    setStep('results');
-  };
-
-  const handleAppeal = async () => {
-    if (!claim) return;
-    setStep('appeal');
-    if (isSample) {
-      setAppeal(SAMPLE_APPEAL);
-      return;
-    }
-    try {
-      const res  = await fetch('/api/analyze-claim', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ action: 'appeal', claimNumber: claim.claimNumber }),
-      });
-      const data = await res.json() as AppealLetter;
-      setAppeal(data);
-    } catch (err) {
-      console.error('appeal generation failed', err);
-    }
-  };
-
-  const handleCall = async () => {
-    setStep('call');
-    try {
-      const res  = await fetch('/api/initiate-call', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ claimNumber: claim?.claimNumber }),
-      });
-      const data = await res.json() as { callId: string };
-      setCallId(data.callId);
-    } catch (err) {
-      console.error('initiate-call failed', err);
-    }
-  };
+  const handleStart        = () => { setClaim(null); setAppeal(null); setStep('analyze'); };
+  const handleAnalyzeDone  = () => { setClaim(SAMPLE_CLAIM); setStep('results'); };
+  const handleAppeal       = () => { setAppeal(SAMPLE_APPEAL); setStep('appeal'); };
+  const handleCall         = () => { setStep('call'); };
 
   return (
     <div style={{ minHeight:'100vh', display:'flex', flexDirection:'column', background:'#F8F7F4', fontFamily:"'DM Sans', system-ui, sans-serif" }}>
@@ -309,20 +94,22 @@ export default function Home() {
 
       {/* Steps */}
       <main style={{ flex:1 }}>
-        {step === 'upload'  && <UploadStep  onUpload={handleUpload} />}
-        {step === 'analyze' && <AnalyzeStep fileName={fileName} onDone={handleAnalyzeDone} />}
+        {step === 'upload'  && <UploadStep  onStart={handleStart} />}
+        {step === 'analyze' && <AnalyzeStep onDone={handleAnalyzeDone} />}
         {step === 'results' && claim && <ResultsStep claim={claim} onAppeal={handleAppeal} />}
         {step === 'appeal'  && appeal && claim && (
           <AppealStep appeal={appeal} insurerName={claim.insurer} onCall={handleCall} />
         )}
-        {step === 'call' && callId && claim && (
+        {step === 'call' && claim && (
           <CallStep
-            callId={callId}
             insurerName={claim.insurer}
             insurerPhone="(800) 267-0989"
             claimNumber={claim.claimNumber}
             patientName={claim.patient}
             appealAmount={claim.totalDenied}
+            transcript={DEMO_TRANSCRIPT}
+            durationMs={DEMO_CALL_DURATION_MS}
+            referenceNumber={DEMO_CALL_REFERENCE}
           />
         )}
       </main>
