@@ -41,20 +41,10 @@ export interface AppealLetter {
   winRate: number;
 }
 
-export type CallStatus = 'initiating' | 'connecting' | 'active' | 'complete' | 'failed';
-
 export interface TranscriptLine {
   speaker: 'ai' | 'bcbs' | 'system';
   text: string;
   t: number;
-}
-
-export interface CallState {
-  callId: string;
-  status: CallStatus;
-  durationMs: number;
-  transcript: TranscriptLine[];
-  referenceNumber?: string;
 }
 
 export type AppStep = 'upload' | 'analyze' | 'results' | 'appeal' | 'call';

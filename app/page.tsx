@@ -4,8 +4,9 @@ import { useState } from 'react';
 import type { AppStep, ClaimResult, AppealLetter } from '@/lib/types/claim';
 import {
   SAMPLE_CLAIM,
-  SAMPLE_APPEAL,
+  buildSampleAppeal,
   DEMO_TRANSCRIPT,
+  DEMO_INSURER_PHONE,
   DEMO_CALL_DURATION_MS,
   DEMO_CALL_REFERENCE,
 } from '@/lib/demo-data';
@@ -61,7 +62,7 @@ export default function Home() {
 
   const handleStart        = () => { setClaim(null); setAppeal(null); setStep('analyze'); };
   const handleAnalyzeDone  = () => { setClaim(SAMPLE_CLAIM); setStep('results'); };
-  const handleAppeal       = () => { setAppeal(SAMPLE_APPEAL); setStep('appeal'); };
+  const handleAppeal       = () => { setAppeal(buildSampleAppeal()); setStep('appeal'); };
   const handleCall         = () => { setStep('call'); };
 
   return (
@@ -102,11 +103,8 @@ export default function Home() {
         )}
         {step === 'call' && claim && (
           <CallStep
-            insurerName={claim.insurer}
-            insurerPhone="(800) 267-0989"
-            claimNumber={claim.claimNumber}
-            patientName={claim.patient}
-            appealAmount={claim.totalDenied}
+            claim={claim}
+            insurerPhone={DEMO_INSURER_PHONE}
             transcript={DEMO_TRANSCRIPT}
             durationMs={DEMO_CALL_DURATION_MS}
             referenceNumber={DEMO_CALL_REFERENCE}

@@ -1,5 +1,4 @@
 'use client';
-// components/claim/UploadStep.tsx
 
 interface Props {
   onStart: () => void;

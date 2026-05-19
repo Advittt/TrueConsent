@@ -63,7 +63,9 @@ export const SAMPLE_CLAIM: ClaimResult = {
   ],
 };
 
-export const SAMPLE_APPEAL: AppealLetter = {
+export function buildSampleAppeal(): AppealLetter {
+  const today = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  return {
   claimId:   'CLM-2024-77291',
   winRate:   82,
   grounds:   2,
@@ -72,7 +74,7 @@ export const SAMPLE_APPEAL: AppealLetter = {
 FORMAL APPEAL — INSURANCE CLAIM DENIAL
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Date:    ${new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })}
+Date:    ${today}
 RE:      Claim #CLM-2024-77291 — Denial Appeal
 Member:  Sarah Mitchell · BCBS-2024-9842
 
@@ -123,8 +125,10 @@ Please confirm receipt of this appeal and provide a case reference number.
 Sincerely,
 Sarah Mitchell
 Member ID: BCBS-2024-9842`,
-};
+  };
+}
 
+export const DEMO_INSURER_PHONE    = '(800) 267-0989';
 export const DEMO_CALL_DURATION_MS = 25_000;
 export const DEMO_CALL_REFERENCE   = 'AP-2847';
 

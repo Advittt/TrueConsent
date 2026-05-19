@@ -1,23 +1,17 @@
 'use client';
-// components/claim/CallStep.tsx
 
-import { useEffect, useRef, useState } from 'react';
-import type { TranscriptLine } from '@/lib/types/claim';
+import { memo, useEffect, useRef, useState } from 'react';
+import type { ClaimResult, TranscriptLine } from '@/lib/types/claim';
+import { formatMoney } from '@/lib/format-money';
 
 interface Props {
-  insurerName: string;
+  claim: ClaimResult;
   insurerPhone: string;
-  claimNumber: string;
-  patientName: string;
-  appealAmount: number;
   transcript: TranscriptLine[];
   durationMs: number;
   referenceNumber: string;
   tickMs?: number;
 }
-
-const fmt = (n: number) =>
-  `$${(n / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const fmtTime = (ms: number) => {
   const s = Math.floor(ms / 1000);
@@ -25,24 +19,29 @@ const fmtTime = (ms: number) => {
 };
 
 export function CallStep({
-  insurerName,
+  claim,
   insurerPhone,
-  claimNumber,
-  patientName,
-  appealAmount,
   transcript,
   durationMs,
   referenceNumber,
   tickMs = 100,
 }: Props) {
-  const [elapsedMs, setElapsedMs] = useState(0);
-  const [wonBadge,  setWon]       = useState(false);
-  const transcriptRef             = useRef<HTMLDivElement>(null);
+  const [elapsedMs,    setElapsedMs]    = useState(0);
+  const [visibleCount, setVisibleCount] = useState(0);
+  const [wonBadge,     setWon]          = useState(false);
+  const transcriptRef                   = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
     let elapsed   = 0;
+    let count     = 0;
     let winTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const reveal = () => {
+      let next = count;
+      while (next < transcript.length && transcript[next].t * 1000 <= elapsed) next++;
+      if (next !== count) { count = next; setVisibleCount(next); }
+    };
 
     const id = setInterval(() => {
       if (cancelled) return;
@@ -51,10 +50,12 @@ export function CallStep({
         elapsed = durationMs;
         clearInterval(id);
         setElapsedMs(elapsed);
+        reveal();
         winTimer = setTimeout(() => { if (!cancelled) setWon(true); }, 600);
         return;
       }
       setElapsedMs(elapsed);
+      reveal();
     }, tickMs);
 
     return () => {
@@ -62,16 +63,15 @@ export function CallStep({
       clearInterval(id);
       if (winTimer) clearTimeout(winTimer);
     };
-  }, [durationMs, tickMs]);
+  }, [durationMs, tickMs, transcript]);
 
-  const visibleTranscript = transcript.filter(l => l.t * 1000 <= elapsedMs);
-  const callDone          = elapsedMs >= durationMs;
-  const progress          = Math.min(elapsedMs / durationMs, 1);
+  const callDone = elapsedMs >= durationMs;
+  const progress = Math.min(elapsedMs / durationMs, 1);
 
   useEffect(() => {
     if (transcriptRef.current)
       transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
-  }, [visibleTranscript.length]);
+  }, [visibleCount]);
 
   return (
     <div style={S.page}>
@@ -81,9 +81,9 @@ export function CallStep({
         <div style={S.phone}>
           <div style={S.phoneTop}>
             <div style={S.caller}>
-              <div style={S.avatar}>{insurerName.slice(0, 4).toUpperCase()}</div>
+              <div style={S.avatar}>{claim.insurer.slice(0, 4).toUpperCase()}</div>
               <div>
-                <div style={S.callerName}>{insurerName}</div>
+                <div style={S.callerName}>{claim.insurer}</div>
                 <div style={S.callerSub}>Provider Relations · {insurerPhone}</div>
               </div>
             </div>
@@ -106,11 +106,11 @@ export function CallStep({
           <div style={S.refGrid}>
             <div style={S.refItem}>
               <div style={S.refL}>Claim</div>
-              <div style={S.refV}>{claimNumber}</div>
+              <div style={S.refV}>{claim.claimNumber}</div>
             </div>
             <div style={S.refItem}>
               <div style={S.refL}>Member</div>
-              <div style={S.refV}>{patientName}</div>
+              <div style={S.refV}>{claim.patient}</div>
             </div>
             {callDone && (
               <div style={S.refItem}>
@@ -128,10 +128,10 @@ export function CallStep({
             <span style={S.tSub}>AI-generated · Real-time</span>
           </div>
           <div style={S.tBody} ref={transcriptRef}>
-            {visibleTranscript.map((line, i) => (
+            {transcript.slice(0, visibleCount).map((line, i) => (
               <TranscriptItem key={i} line={line} />
             ))}
-            {!callDone && visibleTranscript.length > 0 && (
+            {!callDone && visibleCount > 0 && (
               <div style={S.typing}>
                 {[0, 1, 2].map(i => (
                   <span key={i} style={{ ...S.typDot, animationDelay: `${i * 0.15}s` }} />
@@ -150,14 +150,14 @@ export function CallStep({
             <div>
               <div style={S.winTitle}>Appeal filed successfully</div>
               <div style={S.winSub}>
-                Reference {referenceNumber} · {insurerName} must respond within 30 days · Amount: {fmt(appealAmount)}
+                Reference {referenceNumber} · {claim.insurer} must respond within 30 days · Amount: {formatMoney(claim.totalDenied)}
               </div>
             </div>
           </div>
           <div style={S.winStats}>
             {[
               { n: '30 days', l: 'response window' },
-              { n: fmt(appealAmount), l: 'at stake' },
+              { n: formatMoney(claim.totalDenied), l: 'at stake' },
               { n: '91%', l: 'win rate' },
             ].map(({ n, l }) => (
               <div key={l} style={S.winStat}>
@@ -172,14 +172,15 @@ export function CallStep({
   );
 }
 
-function TranscriptItem({ line }: { line: TranscriptLine }) {
+const ALIGN: Record<TranscriptLine['speaker'], React.CSSProperties['alignItems']> = {
+  bcbs:   'flex-end',
+  system: 'center',
+  ai:     'flex-start',
+};
+
+const TranscriptItem = memo(function TranscriptItem({ line }: { line: TranscriptLine }) {
   return (
-    <div style={{
-      ...S.line,
-      ...(line.speaker === 'bcbs' ? { alignItems: 'flex-end' } :
-          line.speaker === 'system' ? { alignItems: 'center' } : {}),
-      animation: 'fadeSlideUp 0.3s ease',
-    }}>
+    <div style={{ ...S.line, alignItems: ALIGN[line.speaker], animation: 'fadeSlideUp 0.3s ease' }}>
       {line.speaker !== 'system' && (
         <div style={{ ...S.spkLabel, color: line.speaker === 'ai' ? 'oklch(0.55 0.15 268)' : 'oklch(0.55 0.05 268)' }}>
           {line.speaker === 'ai' ? '🤖 TrueConsent AI' : `👤 ${line.speaker.toUpperCase()}`}
@@ -188,7 +189,7 @@ function TranscriptItem({ line }: { line: TranscriptLine }) {
       <div style={S.bubble}>{line.text}</div>
     </div>
   );
-}
+});
 
 function WaveForm({ elapsedMs }: { elapsedMs: number }) {
   return (

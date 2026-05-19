@@ -1,16 +1,13 @@
 'use client';
-// components/claim/ResultsStep.tsx
 
 import { useState, useEffect } from 'react';
 import type { ClaimResult, DenialStrength } from '@/lib/types/claim';
+import { formatMoney as fmt } from '@/lib/format-money';
 
 interface Props {
   claim: ClaimResult;
   onAppeal: () => void;
 }
-
-const fmt = (n: number) =>
-  `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const STRENGTH_COLOR: Record<DenialStrength, string> = {
   strong:   'oklch(0.52 0.14 142)',
