@@ -4,12 +4,16 @@ import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { useNarrow } from '@/lib/use-narrow';
 
+// Formspree form endpoint — submissions appear in the Formspree dashboard.
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mvzyrbqj';
+
 export default function WaitlistPage() {
   const [name,       setName]       = useState('');
   const [email,      setEmail]      = useState('');
   const [situation,  setSituation]  = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted,  setSubmitted]  = useState(false);
+  const [error,      setError]      = useState('');
   const narrow                      = useNarrow(820);
 
   const validEmail = /.+@.+\..+/.test(email.trim());
@@ -20,12 +24,30 @@ export default function WaitlistPage() {
     e.preventDefault();
     if (!canSubmit) return;
     setSubmitting(true);
-    // Stub: log only. Wire to a real form service before launch.
-    // eslint-disable-next-line no-console
-    console.log('[waitlist] submission', { name: name.trim(), email: email.trim(), situation: situation.trim() });
-    await new Promise(r => setTimeout(r, 700));
-    setSubmitted(true);
-    setSubmitting(false);
+    setError('');
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          name:      name.trim(),
+          email:     email.trim(),
+          situation: situation.trim(),
+          _subject:  `TrueConsent waitlist — ${name.trim()}`,
+        }),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        const data = await res.json().catch(() => null);
+        const msg  = data?.errors?.map((x: { message: string }) => x.message).join(', ');
+        setError(msg || 'Something went wrong on our end. Please try again.');
+      }
+    } catch {
+      setError('Couldn’t reach the server — check your connection and try again.');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const filled = [name, email, situation].filter(s => s.trim().length > 0).length;
@@ -144,6 +166,13 @@ export default function WaitlistPage() {
               onChange={setSituation}
               disabled={submitted}
             />
+
+            {error && !submitted && (
+              <div style={S.errorBox} role="alert">
+                <span style={S.errorMark}>!</span>
+                <span>{error}</span>
+              </div>
+            )}
 
             <button
               type="submit"
@@ -289,6 +318,9 @@ const S: Record<string, React.CSSProperties> = {
 
   submit:         { background:'oklch(0.25 0.15 268)', color:'#fff', border:'none', borderRadius:12, padding:'16px 20px', fontSize:15, fontWeight:700, marginTop:8, width:'100%', transition:'all 0.15s ease', boxShadow:'0 8px 20px oklch(0.25 0.15 268 / 0.20)', letterSpacing:'-0.005em' },
   submitDone:     { background:'oklch(0.52 0.14 142)', boxShadow:'0 8px 20px oklch(0.52 0.14 142 / 0.25)' },
+
+  errorBox:       { display:'flex', alignItems:'flex-start', gap:8, background:'oklch(0.97 0.03 22)', border:'1px solid oklch(0.86 0.09 22)', borderRadius:10, padding:'10px 13px', fontSize:13, lineHeight:1.45, color:'oklch(0.5 0.18 22)', marginBottom:14 },
+  errorMark:      { flexShrink:0, width:16, height:16, borderRadius:999, background:'oklch(0.55 0.18 22)', color:'#fff', fontSize:11, fontWeight:800, display:'flex', alignItems:'center', justifyContent:'center', marginTop:1 },
 
   fineprint:      { fontSize:12, color:'oklch(0.55 0.05 268)', textAlign:'center', marginTop:14, marginBottom:0, lineHeight:1.5 },
 
