@@ -34,7 +34,7 @@ export function UploadStep({ onStart }: Props) {
         </Link>
 
         <div style={S.trustRow}>
-          {['HIPAA compliant', '256-bit encryption', 'Files deleted after 24h'].map((t) => (
+          {['Demo — nothing is stored', '256-bit encryption', 'Files deleted after 24h'].map((t) => (
             <div key={t} style={S.trustItem}>
               <span style={S.trustDot} />
               {t}

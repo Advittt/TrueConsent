@@ -158,7 +158,7 @@ export default function WaitlistPage() {
               value={name}
               onChange={setName}
               disabled={submitted}
-              autoFocus
+              autoFocus={!narrow}
             />
             <Field
               index={2}
@@ -213,7 +213,7 @@ export default function WaitlistPage() {
       <footer style={S.footer}>
         <span>© 2026 TrueConsent, Inc.</span>
         <span style={S.footerDot}>·</span>
-        <span>HIPAA Compliant</span>
+        <span>Demo · sample data only</span>
         <span style={S.footerDot}>·</span>
         <span>Not legal advice</span>
       </footer>

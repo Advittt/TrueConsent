@@ -36,7 +36,7 @@ export function ResultsStep({ claim, onAppeal }: Props) {
     <div style={{ ...S.page, opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(16px)', transition: 'all 0.4s ease' }}>
 
       {/* Banner */}
-      <div style={S.banner}>
+      <div style={{ ...S.banner, ...(narrow ? { padding: '24px 22px' } : {}) }}>
         <div>
           <div style={S.bannerEye}>Claim Analysis Complete</div>
           <div style={S.bannerHeadline}>
@@ -44,14 +44,14 @@ export function ResultsStep({ claim, onAppeal }: Props) {
           </div>
           <div style={S.bannerSub}>{activeDenials.length} appealable denial{activeDenials.length !== 1 ? 's' : ''} found in claim #{claim.claimNumber}</div>
         </div>
-        <div style={S.bannerRight}>
+        <div style={{ ...S.bannerRight, ...(narrow ? { width: '100%' } : {}) }}>
           {[
             { n: fmt(claim.totalBilled), l: 'Billed', c: '#fff' },
             { n: fmt(claim.totalPaid),   l: 'Paid',   c: 'oklch(0.72 0.14 142)' },
             { n: fmt(claim.totalDenied), l: 'Denied', c: 'oklch(0.85 0.18 55)' },
           ].map(({ n, l, c }) => (
-            <div key={l} style={S.miniStat}>
-              <div style={{ ...S.miniN, color: c }}>{n}</div>
+            <div key={l} style={{ ...S.miniStat, ...(narrow ? { flex: 1, padding: '14px 6px' } : {}) }}>
+              <div style={{ ...S.miniN, color: c, ...(narrow ? { fontSize: 18 } : {}) }}>{n}</div>
               <div style={S.miniL}>{l}</div>
             </div>
           ))}
@@ -59,15 +59,23 @@ export function ResultsStep({ claim, onAppeal }: Props) {
       </div>
 
       {/* Meta strip */}
-      <div style={S.metaRow}>
+      <div style={{ ...S.metaRow, ...(narrow ? { flexDirection: 'column' as const } : {}) }}>
         {[
           { l: 'Patient',         v: claim.patient },
           { l: 'Member ID',       v: claim.memberId },
           { l: 'Insurer',         v: claim.insurer },
           { l: 'Date of Service', v: claim.dateOfService },
           { l: 'Provider',        v: claim.provider },
-        ].map(({ l, v }) => (
-          <div key={l} style={S.metaItem}>
+        ].map(({ l, v }, i, arr) => (
+          <div
+            key={l}
+            style={{
+              ...S.metaItem,
+              ...(narrow
+                ? { borderRight: 'none', borderBottom: i < arr.length - 1 ? '1px solid oklch(0.91 0.02 268)' : 'none' }
+                : {}),
+            }}
+          >
             <div style={S.metaLabel}>{l}</div>
             <div style={S.metaValue}>{v}</div>
           </div>
@@ -86,7 +94,7 @@ export function ResultsStep({ claim, onAppeal }: Props) {
           style={{ ...S.denialCard, ...(expanded === d.id ? S.denialCardOpen : {}) }}
           onClick={() => setExpanded(expanded === d.id ? null : d.id)}
         >
-          <div style={S.denialHead}>
+          <div style={{ ...S.denialHead, ...(narrow ? { flexDirection: 'column' as const, alignItems: 'stretch' as const } : {}) }}>
             <div style={S.denialLeft}>
               <div style={S.codeTag}>{d.carc}</div>
               <div>
@@ -94,7 +102,7 @@ export function ResultsStep({ claim, onAppeal }: Props) {
                 <div style={S.denialSub}>{d.carcLabel}</div>
               </div>
             </div>
-            <div style={S.denialRight}>
+            <div style={{ ...S.denialRight, ...(narrow ? { width: '100%', justifyContent: 'space-between' as const } : {}) }}>
               <div style={S.denialAmt}>{fmt(d.denied)}</div>
               {d.strength && d.confidence != null && (
                 <div style={{ ...S.badge, background: STRENGTH_COLOR[d.strength] + '18', color: STRENGTH_COLOR[d.strength] }}>
@@ -123,9 +131,11 @@ export function ResultsStep({ claim, onAppeal }: Props) {
 
               {d.ourAnalysis && (
                 <div style={S.analysisBox}>
-                  <div style={S.analysisHead}>
-                    <span>⚖️</span>
-                    <span style={S.analysisTitle}>Why you can win this</span>
+                  <div style={{ ...S.analysisHead, ...(narrow ? { flexDirection: 'column' as const, alignItems: 'flex-start' as const, gap: 6 } : {}) }}>
+                    <div style={S.analysisHeadMain}>
+                      <span>⚖️</span>
+                      <span style={S.analysisTitle}>Why you can win this</span>
+                    </div>
                     {d.policyRef && <span style={S.policyRef}>{d.policyRef}</span>}
                   </div>
                   <p style={S.analysisText}>{d.ourAnalysis}</p>
@@ -209,7 +219,8 @@ const S: Record<string, React.CSSProperties> = {
   codeDesc:      { fontSize:12, color:'oklch(0.5 0.05 268)', lineHeight:1.4 },
   analysisBox:   { background:'oklch(0.52 0.14 142 / 0.06)', border:'1px solid oklch(0.52 0.14 142 / 0.2)', borderRadius:12, padding:'16px 18px', marginBottom:16 },
   analysisHead:  { display:'flex', alignItems:'center', gap:8, marginBottom:8 },
-  analysisTitle: { fontSize:14, fontWeight:700, color:'oklch(0.35 0.12 142)', flex:1 },
+  analysisHeadMain:{ display:'flex', alignItems:'center', gap:8, flex:1 },
+  analysisTitle: { fontSize:14, fontWeight:700, color:'oklch(0.35 0.12 142)' },
   policyRef:     { fontFamily:'monospace', fontSize:11, color:'oklch(0.52 0.14 142)', background:'oklch(0.52 0.14 142 / 0.1)', borderRadius:6, padding:'2px 8px' },
   analysisText:  { fontSize:13, color:'oklch(0.35 0.05 268)', lineHeight:1.65, margin:0 },
   confRow:       { display:'flex', alignItems:'center', gap:12 },

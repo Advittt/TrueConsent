@@ -128,7 +128,7 @@ export default function Home() {
       {step === 'upload' && (
         <footer style={{ textAlign:'center', padding:'24px', fontSize:13, color:'oklch(0.65 0.03 268)', display:'flex', justifyContent:'center', gap:10 }}>
           <span>© 2026 TrueConsent, Inc.</span>
-          <span>·</span><span>HIPAA Compliant</span>
+          <span>·</span><span>Demo · sample data only</span>
           <span>·</span><span>Not legal advice</span>
         </footer>
       )}

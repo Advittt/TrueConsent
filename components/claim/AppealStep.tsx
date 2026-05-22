@@ -138,8 +138,8 @@ export function AppealStep({ appeal, insurerName, onCall }: Props) {
           </div>
 
           {!generating && (
-            <div style={S.footer}>
-              <div style={S.footerStats}>
+            <div style={{ ...S.footer, ...(narrow ? { flexDirection: 'column' as const, alignItems: 'stretch' as const, gap: 16 } : {}) }}>
+              <div style={{ ...S.footerStats, ...(narrow ? { justifyContent: 'center' as const } : {}) }}>
                 {[
                   { n: appeal.citations.length, l: 'citations' },
                   { n: appeal.grounds,          l: 'grounds' },
@@ -151,7 +151,7 @@ export function AppealStep({ appeal, insurerName, onCall }: Props) {
                   </div>
                 ))}
               </div>
-              <button style={S.callBtn} onClick={onCall}>
+              <button style={{ ...S.callBtn, ...(narrow ? { width: '100%' } : {}) }} onClick={onCall}>
                 📞 Call {insurerName} now →
               </button>
             </div>
