@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useNarrow } from '@/lib/use-narrow';
 
 // Formspree form endpoint — submissions appear in the Formspree dashboard.
@@ -28,6 +28,15 @@ export default function WaitlistPage() {
   const [submitted,  setSubmitted]  = useState(false);
   const [error,      setError]      = useState('');
   const narrow                      = useNarrow(820);
+  const nameRef                     = useRef<HTMLInputElement>(null);
+
+  // Focus the first field on desktop only. On mobile the form sits below the
+  // fold, so focusing it on load would scroll the page past the title. Checked
+  // here (post-mount) rather than via `autoFocus`, which is read too early —
+  // before useNarrow has measured the viewport.
+  useEffect(() => {
+    if (!window.matchMedia('(max-width: 820px)').matches) nameRef.current?.focus();
+  }, []);
 
   const validEmail = /.+@.+\..+/.test(email.trim());
   const validName  = name.trim().length > 0;
@@ -158,7 +167,7 @@ export default function WaitlistPage() {
               value={name}
               onChange={setName}
               disabled={submitted}
-              autoFocus={!narrow}
+              inputRef={nameRef}
             />
             <Field
               index={2}
@@ -229,11 +238,11 @@ interface FieldProps {
   type?:        string;
   placeholder?: string;
   disabled?:    boolean;
-  autoFocus?:   boolean;
+  inputRef?:    React.Ref<HTMLInputElement>;
   hint?:        string;
 }
 
-function Field({ index, label, value, onChange, type='text', placeholder, disabled, autoFocus, hint }: FieldProps) {
+function Field({ index, label, value, onChange, type='text', placeholder, disabled, inputRef, hint }: FieldProps) {
   const [focused, setFocused] = useState(false);
   const active = focused || value.length > 0;
   return (
@@ -247,7 +256,7 @@ function Field({ index, label, value, onChange, type='text', placeholder, disabl
         type={type}
         value={value}
         placeholder={placeholder}
-        autoFocus={autoFocus}
+        ref={inputRef}
         disabled={disabled}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
