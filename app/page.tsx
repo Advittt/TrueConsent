@@ -97,6 +97,12 @@ export default function Home() {
               </div>
             )}
             <Link
+              href="/about"
+              style={{ fontSize:13, fontWeight:600, color:'oklch(0.4 0.05 268)', textDecoration:'none', padding: narrow ? '6px 6px' : '8px 10px', whiteSpace:'nowrap', transition:'color 0.15s' }}
+            >
+              About
+            </Link>
+            <Link
               href="/waitlist"
               style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:13, fontWeight:600, color:'#fff', background:'oklch(0.25 0.15 268)', textDecoration:'none', borderRadius:999, padding: narrow ? '7px 12px' : '8px 16px', letterSpacing:'-0.005em', boxShadow:'0 4px 12px oklch(0.25 0.15 268 / 0.18)', transition:'all 0.15s' }}
             >
