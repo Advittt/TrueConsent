@@ -7,6 +7,19 @@ import { useNarrow } from '@/lib/use-narrow';
 // Formspree form endpoint — submissions appear in the Formspree dashboard.
 const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mvzyrbqj';
 
+// Longhand animation props. Avoids mixing the `animation` shorthand with the
+// `animationDelay` longhand — React warns about that when conditional branches
+// render the same element with and without the delay.
+function fadeIn(delay: string, duration = '0.6s'): React.CSSProperties {
+  return {
+    animationName:           'fadeSlideUp',
+    animationDuration:       duration,
+    animationTimingFunction: 'ease-out',
+    animationFillMode:       'both',
+    animationDelay:          delay,
+  };
+}
+
 export default function WaitlistPage() {
   const [name,       setName]       = useState('');
   const [email,      setEmail]      = useState('');
@@ -67,7 +80,7 @@ export default function WaitlistPage() {
 
         {/* LEFT — editorial */}
         <section style={S.left}>
-          <div style={{ ...S.eyebrow, animation: 'fadeSlideUp 0.5s ease-out both', animationDelay: '0.05s' }}>
+          <div style={{ ...S.eyebrow, ...fadeIn('0.05s', '0.5s') }}>
             <span style={S.eyebrowMark}>01</span>
             <span style={S.eyebrowDash}>—</span>
             <span>{submitted ? 'You\'re in' : 'Join the list'}</span>
@@ -75,17 +88,17 @@ export default function WaitlistPage() {
 
           {!submitted ? (
             <>
-              <h1 style={{ ...S.headline, animation: 'fadeSlideUp 0.6s ease-out both', animationDelay: '0.15s' }}>
+              <h1 style={{ ...S.headline, ...fadeIn('0.15s') }}>
                 We&apos;re letting people in,<br />
                 <span style={S.headlineAccent}>one denial at a time.</span>
               </h1>
-              <p style={{ ...S.lead, animation: 'fadeSlideUp 0.6s ease-out both', animationDelay: '0.3s' }}>
+              <p style={{ ...S.lead, ...fadeIn('0.3s') }}>
                 TrueConsent isn&apos;t open to the public yet. Every week we take on a small number of real denials from the waitlist and run them end-to-end — the same way you just watched Sarah recover&nbsp;$3,847.
               </p>
-              <p style={{ ...S.lead, animation: 'fadeSlideUp 0.6s ease-out both', animationDelay: '0.4s' }}>
+              <p style={{ ...S.lead, ...fadeIn('0.4s') }}>
                 If you&apos;re sitting on a denial — or know someone who is — leave your details. We&apos;ll reach out the moment a slot opens.
               </p>
-              <ul style={{ ...S.bullets, animation: 'fadeSlideUp 0.6s ease-out both', animationDelay: '0.5s' }}>
+              <ul style={{ ...S.bullets, ...fadeIn('0.5s') }}>
                 {[
                   'Patients with active denials get priority',
                   'No credit card. No commitment.',
@@ -100,20 +113,20 @@ export default function WaitlistPage() {
             </>
           ) : (
             <>
-              <h1 style={{ ...S.headline, animation: 'fadeSlideUp 0.6s ease-out both' }}>
+              <h1 style={{ ...S.headline, ...fadeIn('0s') }}>
                 You&apos;re on the list,<br />
                 <span style={S.headlineAccent}>{firstName}.</span>
               </h1>
-              <p style={{ ...S.lead, animation: 'fadeSlideUp 0.6s ease-out both', animationDelay: '0.15s' }}>
+              <p style={{ ...S.lead, ...fadeIn('0.15s') }}>
                 We logged your details for <strong style={S.strong}>{email.trim()}</strong>. When a slot opens that fits your situation, you&apos;ll be first to hear.
               </p>
-              <p style={{ ...S.lead, animation: 'fadeSlideUp 0.6s ease-out both', animationDelay: '0.3s' }}>
+              <p style={{ ...S.lead, ...fadeIn('0.3s') }}>
                 In the meantime — share the demo with one person who&apos;s been screwed by an insurer. It takes 25&nbsp;seconds and it might change their mind about appealing.
               </p>
             </>
           )}
 
-          <Link href="/" style={{ ...S.backLink, animation: 'fadeSlideUp 0.6s ease-out both', animationDelay: '0.6s' }}>
+          <Link href="/" style={{ ...S.backLink, ...fadeIn('0.6s') }}>
             <span style={S.backArrow}>←</span>
             <span>Back to the demo</span>
           </Link>
@@ -125,8 +138,7 @@ export default function WaitlistPage() {
             onSubmit={handleSubmit}
             style={{
               ...S.card,
-              animation: 'fadeSlideUp 0.6s ease-out both',
-              animationDelay: '0.25s',
+              ...fadeIn('0.25s'),
               transition: 'all 0.4s ease',
               transform: submitted ? 'scale(0.985)' : 'none',
             }}
