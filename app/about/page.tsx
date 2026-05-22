@@ -33,6 +33,7 @@ const TEAM = [
     bg:       'oklch(0.52 0.14 142)',
     links: [
       { label: 'LinkedIn', href: 'https://www.linkedin.com/in/jwalin-shah/' },
+      { label: 'GitHub',   href: 'https://github.com/jwalin-shah' },
     ],
   },
   {
@@ -41,6 +42,7 @@ const TEAM = [
     bg:       'oklch(0.55 0.18 22)',
     links: [
       { label: 'LinkedIn', href: 'https://www.linkedin.com/in/vicxiawang/' },
+      { label: 'GitHub',   href: 'https://github.com/Vikang' },
     ],
   },
 ];
@@ -50,14 +52,8 @@ const LINKS = [
   {
     kicker: 'Watch',
     title:  'The live demo recording',
-    sub:    'TrueConsent presented to the room and the YC panel',
+    sub:    'TrueConsent, presented end to end',
     href:   'https://hel1.your-objectstorage.com/hackersquadcontent/recordings/event_cmnkhwxqi0001qt0k2fhql8xv_cmoksn9m101jenv0k5okmakjb-2026-04-30T011821.mp4',
-  },
-  {
-    kicker: 'Event',
-    title:  'Build YC’s Next Unicorn — Agent Hack Day',
-    sub:    'The hackathon page on HackerSquad',
-    href:   'https://hackersquad.io/events/build-ycs-next-unicorn-agent-hack-day',
   },
   {
     kicker: 'Code',
@@ -67,15 +63,15 @@ const LINKS = [
   },
   {
     kicker: 'Read',
-    title:  'How we built it in a single day',
-    sub:    'The long-form write-up, with photos',
+    title:  'The long-form write-up',
+    sub:    'How the project came together, with photos',
     href:   'https://advittt.github.io/portfolio/blog-post-2.html',
   },
 ];
 
 /* ─── Scroll-reveal wrapper ────────────────────────────────────────────── */
 function Reveal({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
-  const ref            = useRef<HTMLDivElement>(null);
+  const ref               = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(false);
 
   useEffect(() => {
@@ -130,148 +126,111 @@ export default function AboutPage() {
         <div style={{ ...S.eyebrow, ...fadeIn('0.05s', '0.5s') }}>
           <span style={S.eyebrowMark}>00</span>
           <span style={S.eyebrowDash}>—</span>
-          <span>The story behind TrueConsent</span>
+          <span>Why we built TrueConsent</span>
         </div>
 
-        <h1 style={{ ...S.headline, ...fadeIn('0.15s'), fontSize: narrow ? 'clamp(36px, 9vw, 46px)' : 'clamp(46px, 5.6vw, 68px)' }}>
-          We built this in a day.<br />
-          <span style={S.headlineAccent}>YC’s judges placed us second.</span>
+        <h1 style={{ ...S.headline, ...fadeIn('0.15s'), fontSize: narrow ? 'clamp(34px, 8.5vw, 44px)' : 'clamp(44px, 5.4vw, 64px)' }}>
+          Insurance denials are built to<br />make you give up.<br />
+          <span style={S.headlineAccent}>We&apos;re building the reason not to.</span>
         </h1>
 
         <p style={{ ...S.lead, ...fadeIn('0.3s') }}>
-          TrueConsent was built at <strong style={S.strong}>Build YC’s Next Unicorn — Agent
-          Hack&nbsp;Day</strong>: one room on Market Street in San Francisco, a panel of
-          Y&nbsp;Combinator judges, and a single day to go from idea to a live demo on stage.
-          We walked out with <strong style={S.strong}>2nd place</strong> and the
-          <strong style={S.strong}> Best Use of Lightsprint</strong> prize.
+          One in five insurance claims gets denied. Most of those denials would collapse if
+          someone pushed back — but the process is built to wear you down, so almost nobody
+          does. We&apos;re three engineers who kept watching this happen to people around us,
+          and built TrueConsent to push back for you.
         </p>
 
-        {/* Stat strip */}
-        <div style={{ ...S.statStrip, ...fadeIn('0.42s'), gridTemplateColumns: narrow ? '1fr 1fr' : 'repeat(4, 1fr)' }}>
-          {[
-            { n: '1,168', l: 'builders in the room' },
-            { n: '44',    l: 'projects submitted' },
-            { n: '2nd',   l: 'place — judged by YC' },
-            { n: '1 day', l: 'idea to live demo' },
-          ].map(({ n, l }) => (
-            <div key={l} style={S.stat}>
-              <div style={S.statN}>{n}</div>
-              <div style={S.statL}>{l}</div>
-            </div>
-          ))}
-        </div>
-
         {/* Hero photo */}
-        <figure style={{ ...S.figure, ...fadeIn('0.55s') }}>
-          <img src="/about/team-presenting.jpg" alt="The TrueConsent team presenting on stage" style={S.img} loading="lazy" />
+        <figure style={{ ...S.figure, ...fadeIn('0.45s') }}>
+          <img src="/about/team-presenting.jpg" alt="The TrueConsent team" style={S.img} loading="lazy" />
           <figcaption style={S.caption}>
-            Presenting TrueConsent live to the room and the YC&nbsp;panel — Advit&nbsp;Ahuja,
-            Victoria&nbsp;Wang, and Jwalin&nbsp;Shah on the mic.
+            The team behind TrueConsent — Advit&nbsp;Ahuja, Victoria&nbsp;Wang and Jwalin&nbsp;Shah.
           </figcaption>
         </figure>
 
-        {/* ── 01 The hackathon ──────────────────────────────────────── */}
+        {/* ── 01 Where it started ───────────────────────────────────── */}
         <Reveal style={S.section}>
-          <ChapterHead n="01" label="The hackathon" />
+          <ChapterHead n="01" label="Where it started" />
           <p style={S.body}>
-            Build YC’s Next Unicorn — Agent Hack Day ran out of the AWS Builder Loft: a full
-            day, idea to working product, demoed live in front of a panel of YC judges. Before
-            anyone wrote a line of code, <strong style={S.strong}>Kuanze&nbsp;Ma</strong> — who
-            had won two hackathons in two days — laid out the four things judges actually look
-            for.
+            TrueConsent didn&apos;t begin as an appeals tool. Our first build was an AI
+            medical-consent-form scanner — something to catch the fine print before you sign
+            it. We had nearly finished when we walked the idea through real situations and it
+            fell apart: if you need urgent surgery, you are not going to switch hospitals over
+            a clause in a form. We&apos;d built something nobody under pressure could use.
           </p>
-          <div style={{ ...S.pillRow, gridTemplateColumns: narrow ? '1fr 1fr' : 'repeat(4, 1fr)' }}>
-            {['Usefulness', 'Execution', 'Leverage', 'Clarity'].map((p, i) => (
-              <div key={p} style={S.pill}>
-                <span style={S.pillN}>{String(i + 1).padStart(2, '0')}</span>
-                <span>{p}</span>
+          <p style={S.body}>
+            So we pivoted — with working code already on the table — to the problem people
+            actually <em>can</em> act on: the denial that lands <em>after</em> the care, when
+            you&apos;re home and the bill doesn&apos;t add up. That decision is the whole
+            project. It&apos;s also why we&apos;re still called TrueConsent and not
+            TrueAppeals — the name is older than the product.
+          </p>
+          <p style={S.body}>
+            We founded TrueConsent at <strong style={S.strong}>Build YC&apos;s Next Unicorn —
+            Agent Hack Day</strong> in San Francisco. Out of
+            <strong style={S.strong}> 1,168 registered builders</strong> and 44 projects, a
+            panel of <strong style={S.strong}>Y&nbsp;Combinator judges placed it
+            second</strong>. The part that stuck with us wasn&apos;t the placement, though —
+            it was a room full of people saying <em>&ldquo;I needed this last year.&rdquo;</em>
+          </p>
+          <div style={S.award}>
+            <span style={S.awardIcon}>🏆</span>
+            <div>
+              <div style={S.awardTitle}>2nd place — Build YC&apos;s Next Unicorn</div>
+              <div style={S.awardSub}>
+                Founded against a field of <strong style={S.awardHi}>1,168 registered builders</strong> and 44 projects · judged live by a Y&nbsp;Combinator panel
               </div>
-            ))}
+            </div>
           </div>
-          <PullQuote>Solve one problem — and make it realistic to finish in the time you have.</PullQuote>
-        </Reveal>
-
-        {/* ── 02 The pivot ──────────────────────────────────────────── */}
-        <Reveal style={S.section}>
-          <ChapterHead n="02" label="The pivot" />
-          <p style={S.body}>
-            Here’s the question we still get asked: why is the team named
-            <strong style={S.strong}> TrueConsent</strong>, not TrueAppeals? Because we didn’t
-            start here. Our first build was an AI <em>medical-consent-form scanner</em> —
-            something that flags the red lines before you sign them.
-          </p>
-          <p style={S.body}>
-            We had nearly finished it when we talked it through with the YC panelists, and they
-            walked us straight into the flaw: if you need urgent surgery, you are not going to
-            change hospitals over a clause in a form. The product solved a problem nobody under
-            pressure could act on.
-          </p>
-          <p style={S.body}>
-            So we pivoted — mid-build, with working code on the table — to the thing people
-            <em> can</em> act on: the denial that arrives <em>after</em> the care. That decision,
-            more than any feature, is what won us the placement.
-          </p>
-          <PullQuote>Knowing when to throw away working code is its own skill.</PullQuote>
-        </Reveal>
-
-        {/* ── 03 What we built ──────────────────────────────────────── */}
-        <Reveal style={S.section}>
-          <ChapterHead n="03" label="What we built" />
-          <p style={S.body}>
-            TrueConsent is an arbitrage on inattention. Insurers deny claims at scale; most of
-            those denials collapse the moment someone pushes back — and almost nobody pushes
-            back. So we built the thing that pushes back for you.
-          </p>
-          <p style={S.body}>
-            Drop in an Explanation of Benefits, a denial letter, or an itemized bill. Every
-            CPT, ICD-10, CARC and RARC code is looked up in local CMS reference tables — no
-            inference, no hallucinated facts. A rule engine runs the medical-necessity and
-            billing-math checks on its own. Only once the facts are grounded does Claude step
-            in to draft a citation-backed appeal. A dense 60-page bill becomes a complete
-            appeal packet in <strong style={S.strong}>under 60 seconds</strong>.
-          </p>
-          <p style={S.body}>
-            We built it on Next.js&nbsp;15, React&nbsp;19, TypeScript and Tailwind, with Claude
-            reached through TokenRouter — all inside <strong style={S.strong}>Lightsprint</strong>,
-            an agentic IDE and one of the hackathon sponsors. Leaning on that leverage is what
-            let us ship more than one project that day, and it earned us the
-            <strong style={S.strong}> Best Use of Lightsprint</strong> prize.
-          </p>
           <figure style={S.figureInline}>
-            <img src="/about/advit-speaking.jpg" alt="Presenting TrueConsent at the podium" style={S.img} loading="lazy" />
-            <figcaption style={S.caption}>Twenty-five seconds, on stage: an Explanation of Benefits to a filed appeal.</figcaption>
+            <img src="/about/top-3-teams.jpg" alt="The TrueConsent team after the results" style={S.img} loading="lazy" />
+            <figcaption style={S.caption}>With the other top teams after the results — TrueConsent placed second.</figcaption>
           </figure>
+          <PullQuote>Medical appeals are skewed for you to lose. We&apos;re building TrueConsent to flip that.</PullQuote>
         </Reveal>
 
-        {/* ── 04 The podium ─────────────────────────────────────────── */}
+        {/* ── 02 How it works ───────────────────────────────────────── */}
         <Reveal style={S.section}>
-          <ChapterHead n="04" label="The podium" />
+          <ChapterHead n="02" label="How it works" />
           <p style={S.body}>
-            Second out of 44. What stayed with us wasn’t the trophy — it was the rest of the
-            podium. All three winning projects were built around care and accessibility. That
-            tells you something about where the next big company gets built.
+            TrueConsent reads the paperwork the system counts on you not reading. You drop in
+            an Explanation of Benefits, a denial letter, or an itemized hospital bill — and it
+            goes to work:
           </p>
-          <figure style={S.figureInline}>
-            <img src="/about/top-3-teams.jpg" alt="The top three teams at the awards" style={S.img} loading="lazy" />
-            <figcaption style={S.caption}>
-              The top three — Jwalin, Advit and Victoria (TrueConsent, 2nd); Holly&nbsp;Tang
-              (ScanReason&nbsp;AI, 1st); Alison&nbsp;Cossette (Ruby’s&nbsp;Agent, 3rd).
-            </figcaption>
-          </figure>
-          <figure style={S.figureInline}>
-            <img src="/about/awards.png" alt="The hackathon prize results" style={S.img} loading="lazy" />
-            <figcaption style={S.caption}>The results — TrueConsent took 2nd Place Demo and Best Use of Lightsprint.</figcaption>
-          </figure>
-          <PullQuote>Medical appeals are skewed for you to lose. We’re building TrueConsent to flip that.</PullQuote>
+          <ul style={S.howList}>
+            {[
+              'Decodes every medical and denial code into plain English',
+              'Cross-references them and flags every wrongful denial, with a case-strength score',
+              'Drafts a medically precise, legally grounded appeal letter — with citations',
+              'Hands off to an AI agent that calls your insurer to present it, with a live transcript you can watch',
+            ].map(item => (
+              <li key={item} style={S.howItem}>
+                <span style={S.howMark}>✓</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+          <p style={S.body}>
+            A dense 60-page bill becomes a complete appeal packet in under 60&nbsp;seconds. And
+            the facts are never guessed — every code is checked against official reference
+            tables, and the medical-necessity and billing-math checks run on fixed rules. The
+            appeal that reaches your insurer is something you can actually stand behind.
+          </p>
+          <p style={S.bodyMuted}>
+            One honest note: the insurer phone call is mocked for this demo. It&apos;s exactly
+            where we&apos;re taking the product — but right now, what you see is a walkthrough.
+          </p>
         </Reveal>
 
-        {/* ── The team ──────────────────────────────────────────────── */}
+        {/* ── 03 The team ───────────────────────────────────────────── */}
         <Reveal style={S.section}>
-          <ChapterHead n="05" label="The team" />
+          <ChapterHead n="03" label="The team" />
           <p style={S.body}>
-            Three builders from CS backgrounds, one weekend, one room of 1,168. No fixed
-            roles — we all did everything: picking up brand-new tools and shipping a working
-            MVP in hours, not weeks.
+            We&apos;re three engineers from CS backgrounds. No fixed roles — we all did
+            everything, because a problem this common deserves people who&apos;ll sweat every
+            part of the answer. Medical bills are something all of us deal with; this is our
+            attempt to make them fairer.
           </p>
           <div style={{ ...S.teamGrid, gridTemplateColumns: narrow ? '1fr' : 'repeat(3, 1fr)' }}>
             {TEAM.map(m => (
@@ -288,16 +247,11 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
-          <p style={{ ...S.thanks }}>
-            With thanks to <strong style={S.strong}>HackerSquad</strong> and Adam&nbsp;Chan for
-            running it, to hosts Sam&nbsp;Hooti and Kuanze&nbsp;Ma, and to sponsors
-            Lightsprint, TokenRouter and AWS for the tools and the room.
-          </p>
         </Reveal>
 
-        {/* ── Links ─────────────────────────────────────────────────── */}
+        {/* ── 04 Links ──────────────────────────────────────────────── */}
         <Reveal style={S.section}>
-          <ChapterHead n="06" label="See it for yourself" />
+          <ChapterHead n="04" label="See it for yourself" />
           <div style={{ ...S.linkGrid, gridTemplateColumns: narrow ? '1fr' : '1fr 1fr' }}>
             {LINKS.map(l => (
               <a key={l.title} href={l.href} target="_blank" rel="noopener noreferrer" style={S.linkCard}>
@@ -313,7 +267,7 @@ export default function AboutPage() {
         {/* ── Closing CTA ───────────────────────────────────────────── */}
         <Reveal style={{ ...S.cta, ...(narrow ? { padding: '32px 24px' } : {}) }}>
           <div style={S.ctaInner}>
-            <h2 style={S.ctaTitle}>They believed in our idea.<br /><span style={S.headlineAccent}>So do we.</span></h2>
+            <h2 style={S.ctaTitle}>A denial isn&apos;t the final answer.<br /><span style={S.headlineAccent}>See what pushing back looks like.</span></h2>
             <p style={S.ctaSub}>Watch the 25-second demo, then put your own denial in line.</p>
             <div style={{ ...S.ctaBtns, flexDirection: narrow ? 'column' : 'row' }}>
               <Link href="/" style={{ ...S.ctaPrimary, ...(narrow ? { width: '100%' } : {}) }}>Watch the demo</Link>
@@ -372,15 +326,10 @@ const S: Record<string, React.CSSProperties> = {
   eyebrowMark: { color:'oklch(0.25 0.15 268)', fontWeight:600 },
   eyebrowDash: { color:'oklch(0.78 0.04 268)' },
 
-  headline:    { fontFamily:'"DM Serif Display", Georgia, serif', lineHeight:1.06, color:'oklch(0.18 0.02 250)', margin:'0 0 28px', letterSpacing:'-0.025em', fontWeight:400 },
+  headline:    { fontFamily:'"DM Serif Display", Georgia, serif', lineHeight:1.1, color:'oklch(0.18 0.02 250)', margin:'0 0 28px', letterSpacing:'-0.025em', fontWeight:400 },
   headlineAccent:{ color:'oklch(0.55 0.18 22)', fontStyle:'italic' },
-  lead:        { fontSize:19, lineHeight:1.65, color:'oklch(0.4 0.02 250)', margin:'0 0 36px', maxWidth:680 },
+  lead:        { fontSize:19, lineHeight:1.65, color:'oklch(0.4 0.02 250)', margin:'0 0 40px', maxWidth:680 },
   strong:      { color:'oklch(0.25 0.15 268)', fontWeight:600 },
-
-  statStrip:   { display:'grid', gap:1, background:'oklch(0.91 0.02 268)', border:'1px solid oklch(0.91 0.02 268)', borderRadius:16, overflow:'hidden', marginBottom:44 },
-  stat:        { background:'#fff', padding:'22px 18px', textAlign:'center' },
-  statN:       { fontFamily:'"DM Serif Display", Georgia, serif', fontSize:34, color:'oklch(0.25 0.15 268)', lineHeight:1, marginBottom:6 },
-  statL:       { fontSize:12.5, color:'oklch(0.5 0.05 268)', lineHeight:1.4 },
 
   figure:      { margin:'0 0 8px', display:'flex', flexDirection:'column', gap:10 },
   figureInline:{ margin:'28px 0 4px', display:'flex', flexDirection:'column', gap:10 },
@@ -394,13 +343,20 @@ const S: Record<string, React.CSSProperties> = {
   chapterLabel:{ fontFamily:'"DM Mono", monospace', fontSize:13, letterSpacing:'0.08em', textTransform:'uppercase', color:'oklch(0.3 0.08 268)', fontWeight:500 },
 
   body:        { fontSize:17, lineHeight:1.72, color:'oklch(0.34 0.02 250)', margin:'0 0 18px', maxWidth:680 },
+  bodyMuted:   { fontSize:14.5, lineHeight:1.65, color:'oklch(0.55 0.05 268)', margin:'18px 0 0', maxWidth:680, fontStyle:'italic' },
 
-  pillRow:     { display:'grid', gap:10, margin:'24px 0 4px' },
-  pill:        { display:'flex', alignItems:'center', gap:8, background:'#fff', border:'1px solid oklch(0.91 0.02 268)', borderRadius:10, padding:'12px 14px', fontSize:14, fontWeight:600, color:'oklch(0.25 0.15 268)' },
-  pillN:       { fontFamily:'"DM Mono", monospace', fontSize:11, color:'oklch(0.7 0.05 268)', fontWeight:500 },
+  howList:     { listStyle:'none', padding:0, margin:'4px 0 22px', display:'flex', flexDirection:'column', gap:13, maxWidth:680 },
+  howItem:     { display:'flex', alignItems:'flex-start', gap:12, fontSize:16, lineHeight:1.55, color:'oklch(0.34 0.02 250)' },
+  howMark:     { flexShrink:0, width:20, height:20, borderRadius:6, background:'oklch(0.52 0.14 142 / 0.13)', color:'oklch(0.42 0.12 142)', fontSize:11, fontWeight:800, display:'flex', alignItems:'center', justifyContent:'center', marginTop:1 },
 
-  quote:       { margin:'30px 0 4px', padding:'4px 0 4px 26px', borderLeft:'3px solid oklch(0.55 0.18 22)', fontFamily:'"DM Serif Display", Georgia, serif', fontSize:24, lineHeight:1.4, color:'oklch(0.22 0.04 268)', fontStyle:'italic', position:'relative' },
+  quote:       { margin:'30px 0 4px', padding:'4px 0 4px 26px', borderLeft:'3px solid oklch(0.55 0.18 22)', fontFamily:'"DM Serif Display", Georgia, serif', fontSize:24, lineHeight:1.4, color:'oklch(0.22 0.04 268)', fontStyle:'italic' },
   quoteMark:   { color:'oklch(0.55 0.18 22)', marginRight:2 },
+
+  award:       { display:'flex', alignItems:'center', gap:14, background:'oklch(0.97 0.035 55)', border:'1px solid oklch(0.84 0.1 55)', borderRadius:14, padding:'16px 18px', margin:'22px 0 4px', maxWidth:680 },
+  awardIcon:   { fontSize:26, lineHeight:1, flexShrink:0 },
+  awardTitle:  { fontFamily:'"DM Serif Display", Georgia, serif', fontSize:18, color:'oklch(0.34 0.1 55)', marginBottom:3 },
+  awardSub:    { fontFamily:'"DM Mono", monospace', fontSize:11.5, lineHeight:1.55, color:'oklch(0.52 0.07 55)', letterSpacing:'0.01em' },
+  awardHi:     { color:'oklch(0.42 0.16 55)', fontWeight:700 },
 
   teamGrid:    { display:'grid', gap:16, marginTop:26 },
   teamCard:    { background:'#fff', border:'1px solid oklch(0.91 0.02 268)', borderRadius:16, padding:'24px 22px', display:'flex', flexDirection:'column', alignItems:'flex-start' },
@@ -410,8 +366,6 @@ const S: Record<string, React.CSSProperties> = {
   teamLink:    { fontSize:13, fontWeight:600, color:'oklch(0.25 0.15 268)', textDecoration:'none', background:'oklch(0.25 0.15 268 / 0.07)', border:'1px solid oklch(0.25 0.15 268 / 0.14)', borderRadius:999, padding:'6px 12px' },
   teamLinkArrow:{ fontSize:11, opacity:0.7 },
 
-  thanks:      { fontSize:14.5, lineHeight:1.65, color:'oklch(0.5 0.05 268)', margin:'28px 0 0', maxWidth:680 },
-
   linkGrid:    { display:'grid', gap:14, marginTop:26 },
   linkCard:    { position:'relative', display:'flex', flexDirection:'column', gap:5, background:'#fff', border:'1px solid oklch(0.91 0.02 268)', borderRadius:14, padding:'20px 22px', textDecoration:'none' },
   linkKicker:  { fontFamily:'"DM Mono", monospace', fontSize:10.5, letterSpacing:'0.1em', textTransform:'uppercase', color:'oklch(0.55 0.18 22)', fontWeight:500 },
@@ -420,8 +374,8 @@ const S: Record<string, React.CSSProperties> = {
   linkArrow:   { position:'absolute', top:18, right:20, fontSize:15, color:'oklch(0.6 0.05 268)' },
 
   cta:         { marginTop:72, background:'oklch(0.25 0.15 268)', borderRadius:24, padding:'52px 40px', textAlign:'center', boxShadow:'0 30px 70px oklch(0.25 0.15 268 / 0.22)' },
-  ctaInner:    { maxWidth:520, margin:'0 auto' },
-  ctaTitle:    { fontFamily:'"DM Serif Display", Georgia, serif', fontSize:'clamp(28px, 4vw, 38px)', lineHeight:1.15, color:'#fff', margin:'0 0 14px', fontWeight:400, letterSpacing:'-0.02em' },
+  ctaInner:    { maxWidth:540, margin:'0 auto' },
+  ctaTitle:    { fontFamily:'"DM Serif Display", Georgia, serif', fontSize:'clamp(26px, 3.8vw, 36px)', lineHeight:1.18, color:'#fff', margin:'0 0 14px', fontWeight:400, letterSpacing:'-0.02em' },
   ctaSub:      { fontSize:16, color:'oklch(0.85 0.06 268)', lineHeight:1.6, margin:'0 0 28px' },
   ctaBtns:     { display:'flex', gap:12, justifyContent:'center' },
   ctaPrimary:  { display:'inline-flex', alignItems:'center', justifyContent:'center', background:'#fff', color:'oklch(0.25 0.15 268)', fontSize:15, fontWeight:700, textDecoration:'none', borderRadius:12, padding:'14px 26px' },
